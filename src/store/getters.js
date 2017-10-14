@@ -1,4 +1,4 @@
-
+let coinList = require('../assets/coinlist.json')
 export default {
   loading: (state) => {
     return state.loading
@@ -31,5 +31,8 @@ export default {
   },
   conversion: (state) => {
     return state.conversion
+  },
+  coinList () {
+    return coinList.Data
   }
 }

@@ -29,7 +29,7 @@
 
     <v-layout row wrap>
       <v-flex xs12 md4 offset-md1>
-       <token :token="takerAddress"></token>
+       <token :token="getTokenSymbol(makerAddress)"></token>
       </v-flex> 
 
 
@@ -39,7 +39,7 @@
 
 
       <v-flex xs12  md4 >
-        <token :token="makerAddress"></token>
+        <token :token="getTokenSymbol(takerAddress)"></token>
       </v-flex>
     </v-layout>
 
@@ -220,6 +220,12 @@ export default {
         return token.address === address
       })
       return t && t.name
+    },
+    getTokenSymbol (address) {
+      let t = this.tokens.find((token) => {
+        return token.address === address
+      })
+      return t && t.symbol
     }
   }
 }

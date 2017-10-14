@@ -18,6 +18,9 @@ export default {
   computed: {
     ...mapGetters(['tokens', 'coinList']),
     bgImage () {
+      if (!this.coinList[this.token]) return
+      let url = this.coinList[this.token].ImageUrl
+      return 'background-image: url("https://cryptocompare.com/' + url + '")'
     }
   }
 }
@@ -31,5 +34,8 @@ export default {
   border-radius: 100%;
   margin-left: auto;
   margin-right: auto;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 </style>
