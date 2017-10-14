@@ -23,7 +23,8 @@ const state = {
   EXCHANGE_ADDRESS: null, // = await zeroEx.exchange.getContractAddressAsync();
   rates: {},
   addresses: [],
-  conversion: 'WETH'
+  conversion: 'WETH',
+  coinList: []
 }
 
 export default new Vuex.Store({

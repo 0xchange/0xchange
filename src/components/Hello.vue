@@ -1,11 +1,12 @@
 <template>
   <div class="hello">
-   <!--  <v-btn @click="withdraw()">withdraw</v-btn>
-    <v-btn @click="deposit()">deposit</v-btn>
-    <input placeholder="Gwei" v-model="eth"> -->
+    <v-btn @click="withdraw(eth)">withdraw</v-btn>
+    <v-btn @click="deposit(eth)">deposit</v-btn>
+    <input placeholder="Gwei" v-model="eth">
     <v-layout row wrap>
       <v-flex xs12 md4>
         <v-select 
+        :editable="true"
         @click="isEmpty()"
         autocomplete
         label="Make Order"
@@ -15,6 +16,7 @@
       </v-flex>
       <v-flex xs12 md4  offset-md4>
         <v-select 
+        :editable="true"
         @click="isEmpty()"
         autocomplete
         label="Take Order"
@@ -153,7 +155,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['connect']),
+    ...mapActions(['connect', 'withdraw', 'deposit']),
     isEmpty () {
       console.log('isEmpty')
     },
@@ -213,26 +215,6 @@ export default {
         this.exchangeResults = results.data
       })
     },
-    // withdraw () {
-    //   zeroEx.getAvailableAddressesAsync().then((addresses) => {
-    //     if (addresses.length) {
-    //       console.log(zeroEx)
-    //       zeroEx.etherToken.withdrawAsync(new BN(1000000000000000000).mul(this.eth), addresses[0]).then((tx) => {
-    //         console.log(tx)
-    //       })
-    //     }
-    //   })
-    // },
-    // deposit () {
-    //   zeroEx.getAvailableAddressesAsync().then((addresses) => {
-    //     if (addresses.length) {
-    //       console.log(zeroEx)
-    //       zeroEx.etherToken.depositAsync(new BN(1000000000000000000).mul(this.eth), addresses[0]).then((tx) => {
-    //         console.log(tx)
-    //       })
-    //     }
-    //   })
-    // },
     getToken (address) {
       let t = this.tokens.find((token) => {
         return token.address === address

@@ -1,5 +1,5 @@
 <template>
-  <div class="token my-2 mx-auto">
+  <div class="token my-2 mx-auto" :style="bgImage">
   </div>
 </template>
 
@@ -16,7 +16,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['tokens'])
+    ...mapGetters(['tokens', 'coinList']),
+    bgImage () {
+    }
   }
 }
 </script>

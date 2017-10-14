@@ -1,11 +1,23 @@
 import ProviderEngine from 'web3-provider-engine'
 import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
-import axios from 'axios'
+// import axios from 'axios'
+// import jsonpAdapter from 'axios-jsonp'
+import BN from 'bignumber.js'
 import { ZeroEx } from '0x.js'
 let zeroEx = null
 
 export default {
+  withdraw ({commit, state}, eth) {
+    zeroEx.etherToken.withdrawAsync(new BN(1000000000000000000).mul(eth), state.addresses[0]).then((tx) => {
+      console.log(tx)
+    })
+  },
+  deposit ({commit, state}, eth) {
+    zeroEx.etherToken.depositAsync(new BN(1000000000000000000).mul(eth), state.addresses[0]).then((tx) => {
+      console.log(tx)
+    })
+  },
   addNotification ({commit}, msg) {
     let id = new Date().getTime()
     msg.id = id
@@ -19,11 +31,6 @@ export default {
   },
   removeNotification ({commit}, id) {
     commit('REMOVE_MSG', id)
-  },
-  getRates ({commit}) {
-    axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + this.symbolsString + '&tsyms=USD,CAD').then((results) => {
-      commit('UPDATE_RATES', results.data)
-    })
   },
   connect ({dispatch, commit}) {
     dispatch('getRates')
@@ -44,7 +51,7 @@ export default {
     // 3117574 kovan
     // 4145578 mainnet
     zeroEx.exchange.getLogsAsync('LogFill', {fromBlock: 4219261, toBlock: 'latest'}, {}).then((logs) => {
-      console.log(logs)
+      // console.log(logs)
       commit('ADD_LOGS', logs)
     })
     zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
@@ -75,6 +82,7 @@ export default {
       console.log(signedOrder)
       return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
         console.log('idk', idk)
+
         return idk
       })
     }).catch((error) => {
