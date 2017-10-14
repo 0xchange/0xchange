@@ -17,5 +17,8 @@ export default {
   },
   tokenSymbols: () => {
     return this.tokens.map((token) => token.symbol)
+  },
+  rates: (state) => {
+    return state.rates
   }
 }

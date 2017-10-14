@@ -83,9 +83,6 @@ export default {
       providerEngine.addProvider(new RpcSubprovider({rpcUrl: ROPSTEN_ENDPOINT}))
       providerEngine.start()
     }
-    // Maker Token, Taker Token, Amount of maker token, amount of Taker token
-    // Amount of Taker token that have been filled...
-  // vTak
 
     zeroEx = new ZeroEx(providerEngine)
     // commit('SET_ZERO_EX', zeroEx)

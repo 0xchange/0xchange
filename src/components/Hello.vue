@@ -113,9 +113,16 @@ export default {
   },
   mounted () {
     this.connect()
+    const blahrates = this.calculateOrderRates({
+      makerToken: 'ETH',
+      takerToken: 'BTC',
+      filledMakerTokenAmount: 100,
+      filledTakerTokenAmount: 10
+    })
+    console.log('pls?', JSON.stringify(blahrates))
   },
   computed: {
-    ...mapGetters(['logs', 'tokens']),
+    ...mapGetters(['logs', 'tokens', 'rates']),
     logsFiltered () {
       return this.logs.filter((con) => {
         return (this.takerAddress && !this.makerAddress && con.args.takerToken === this.takerAddress) ||
@@ -130,6 +137,15 @@ export default {
   },
   methods: {
     ...mapActions(['connect']),
+    calculateOrderRates (order) {
+      const {takerToken, filledMakerTokenAmount, filledTakerTokenAmount} = order
+      const ratio = filledTakerTokenAmount / filledMakerTokenAmount
+      const orderRates = this.rates[takerToken]
+      Object.keys(orderRates).map((key, index) => {
+        orderRates[key] *= ratio
+      })
+      return orderRates
+    },
     close () {
       this.order = null
     },
