@@ -12,8 +12,16 @@ Vue.use(Vuex)
 const debug = false
 
 const state = {
+  zeroEx: null,
   loading: false,
-  notifications: []
+  notifications: [],
+  tokens: [],
+  logs: [],
+  NULL_ADDRESS: null, // ZeroEx.NULL_ADDRESS;
+  WETH_ADDRESS: null, // = await zeroEx.etherToken.getContractAddressAsync();
+  ZRX_ADDRESS: null, // = await zeroEx.exchange.getZRXTokenAddressAsync();
+  EXCHANGE_ADDRESS: null, // = await zeroEx.exchange.getContractAddressAsync();
+  rates: {}
 }
 
 export default new Vuex.Store({

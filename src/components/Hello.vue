@@ -23,7 +23,7 @@
 
     <v-data-table
       v-bind:headers="headers"
-      :items="ordersFiltered"
+      :items="logsFiltered"
       class="elevation-1"
     >
       <template slot="items" scope="props">
@@ -36,32 +36,36 @@
         <td class="text-xs-right">{{ formatDecimals(props.item.args.makerToken, props.item.args.paidMakerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.args.takerToken, props.item.args.paidTakerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.args.takerToken, props.item.args.filledTakerTokenAmount) }}</td>
-       
+        <td class="text-xs-right"><v-btn @click="take(props.item)">Take</v-btn></td>
       </template>
     </v-data-table>
+    <order @close="close" v-if="order" :order="order"></order>
   </div>
 </template>
 
 <script>
+import Order from '@/components/Order'
 import axios from 'axios'
-import ProviderEngine from 'web3-provider-engine'
-import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
-import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
+// import ProviderEngine from 'web3-provider-engine'
+// import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
+// import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
 import { ZeroEx } from '0x.js'
 import BN from 'bignumber.js'
-let zeroEx = null
+
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
+  components: {Order},
   name: 'HelloWorld',
   data () {
     return {
       takerAddress: null,
       makerAddress: null,
-      tokens: [],
-      orders: [],
       paged: 0,
       limit: 3,
       eth: 0,
       exchangeResults: {},
+      order: null,
       headers: [
         {
           text: 'takerToken',
@@ -111,11 +115,9 @@ export default {
     this.connect()
   },
   computed: {
-    totalPages () {
-      return Math.ceil(this.ordersFiltered.length / this.limit)
-    },
-    ordersFiltered () {
-      return this.orders.filter((con) => {
+    ...mapGetters(['logs', 'tokens']),
+    logsFiltered () {
+      return this.logs.filter((con) => {
         return (this.takerAddress && !this.makerAddress && con.args.takerToken === this.takerAddress) ||
         (this.makerAddress && !this.takerAddress && con.args.makerToken === this.makerAddress) ||
         (!this.takerAddress && !this.makerAddress) ||
@@ -127,12 +129,16 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['connect']),
+    close () {
+      this.order = null
+    },
+    take (order) {
+      this.order = order
+    },
     formatDecimals (tokenAddress, amount) {
       let token = this.tokens.filter((token) => token.address === tokenAddress)
-      console.log(token && parseInt(token[0].decimals))
-      let foo = token.length && ZeroEx.toBaseUnitAmount(new BN(parseInt(amount)), parseInt(token[0].decimals))
-      console.log(foo)
-      return foo.toNumber()
+      return token.length && ZeroEx.toBaseUnitAmount(new BN(parseInt(amount)), parseInt(token[0].decimals)).toNumber()
     },
     selectTokens (maker = true) {
       let foo = this.tokens.map((token) => {
@@ -149,78 +155,43 @@ export default {
       return foo
     },
     tokenQuant (address, maker) {
-      return this.ordersFiltered.filter((order) => {
-        return (!maker && order.args.makerToken === address) || (maker && order.args.takerToken === address)
+      return this.logsFiltered.filter((log) => {
+        return (!maker && log.args.makerToken === address) || (maker && log.args.takerToken === address)
       }).length
     },
     shorten (str) {
       return str.slice(0, 8)
-    },
-    prev () {
-      this.paged = this.paged === 0 ? this.paged : this.paged - 1
-    },
-    next () {
-      this.paged += 1
     },
     getExchange () {
       axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + this.symbolsString + '&tsyms=USD,CAD').then((results) => {
         this.exchangeResults = results.data
       })
     },
-    withdraw () {
-      zeroEx.getAvailableAddressesAsync().then((addresses) => {
-        if (addresses.length) {
-          console.log(zeroEx)
-          zeroEx.etherToken.withdrawAsync(new BN(1000000000000000000).mul(this.eth), addresses[0]).then((tx) => {
-            console.log(tx)
-          })
-        }
-      })
-    },
-    deposit () {
-      zeroEx.getAvailableAddressesAsync().then((addresses) => {
-        if (addresses.length) {
-          console.log(zeroEx)
-          zeroEx.etherToken.depositAsync(new BN(1000000000000000000).mul(this.eth), addresses[0]).then((tx) => {
-            console.log(tx)
-          })
-        }
-      })
-    },
+    // withdraw () {
+    //   zeroEx.getAvailableAddressesAsync().then((addresses) => {
+    //     if (addresses.length) {
+    //       console.log(zeroEx)
+    //       zeroEx.etherToken.withdrawAsync(new BN(1000000000000000000).mul(this.eth), addresses[0]).then((tx) => {
+    //         console.log(tx)
+    //       })
+    //     }
+    //   })
+    // },
+    // deposit () {
+    //   zeroEx.getAvailableAddressesAsync().then((addresses) => {
+    //     if (addresses.length) {
+    //       console.log(zeroEx)
+    //       zeroEx.etherToken.depositAsync(new BN(1000000000000000000).mul(this.eth), addresses[0]).then((tx) => {
+    //         console.log(tx)
+    //       })
+    //     }
+    //   })
+    // },
     getToken (address) {
       let t = this.tokens.find((token) => {
         return token.address === address
       })
       return t && t.name
-    },
-    connect () {
-      console.log('con?')
-      let providerEngine = null
-      if (window.web3) {
-        providerEngine = window.web3.currentProvider
-      } else {
-        const ROPSTEN_ENDPOINT = 'https://ropsten.infura.io'
-
-        providerEngine = new ProviderEngine()
-        providerEngine.addProvider(new FilterSubprovider())
-        providerEngine.addProvider(new RpcSubprovider({rpcUrl: ROPSTEN_ENDPOINT}))
-        providerEngine.start()
-      }
-
-      zeroEx = new ZeroEx(providerEngine)
-      // 3117574 kovan
-      // 4145578 mainnet
-      zeroEx.exchange.getLogsAsync('LogFill', {fromBlock: 4219261, toBlock: 'latest'}, {}).then((logs) => {
-        this.orders = logs
-        console.log(logs)
-      })
-      zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
-        this.tokens = tokens
-      })
-      console.log('weth?')
-      zeroEx.exchange.getContractAddressAsync().then((address) => {
-        console.log('weth:', address)
-      })
     }
   }
 }
