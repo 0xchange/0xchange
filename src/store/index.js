@@ -24,7 +24,8 @@ const state = {
   rates: {},
   addresses: [],
   conversion: 'WETH',
-  coinList: []
+  coinList: [],
+  orders: []
 }
 
 export default new Vuex.Store({

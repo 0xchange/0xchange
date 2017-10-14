@@ -29,6 +29,7 @@
     </v-toolbar>
     <main>
       <v-content>
+        <notifications></notifications>
         <v-container fluid>
           <v-slide-y-transition mode="out-in">
             <v-layout column align-center>
@@ -44,7 +45,6 @@
       indeterminate color="primary" v-if="loading"></v-progress-circular>
     </main>
    
-      <notifications></notifications>
 
 
     <v-footer app>

@@ -33,7 +33,6 @@ export default {
     commit('REMOVE_MSG', id)
   },
   connect ({dispatch, commit}) {
-    dispatch('getRates')
     let providerEngine = null
     if (window.web3) {
       providerEngine = window.web3.currentProvider
@@ -72,7 +71,7 @@ export default {
       commit('SET_ADDRESSES', addresses)
     })
   },
-  submitOrder ({commit, state}, order) {
+  submitOrder ({commit, state, dispatch}, order) {
     const orderHash = ZeroEx.getOrderHashHex(order)
     return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
       const signedOrder = {
@@ -80,11 +79,14 @@ export default {
         ecSignature
       }
       console.log(signedOrder)
-      return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
-        console.log('idk', idk)
+      dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
+      commit('ADD_ORDER', signedOrder)
+      return signedOrder
+      // return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
+      //   console.log('idk', idk)
 
-        return idk
-      })
+      //   return idk
+      // })
     }).catch((error) => {
       console.error(error)
     })

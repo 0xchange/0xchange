@@ -1,12 +1,13 @@
 <template>
   <div class="hello">
-    <v-btn @click="withdraw(eth)">withdraw</v-btn>
+<!--     <v-btn @click="withdraw(eth)">withdraw</v-btn>
     <v-btn @click="deposit(eth)">deposit</v-btn>
-    <input placeholder="Gwei" v-model="eth">
+    <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
       <v-flex xs12 md4>
         <v-select 
-        :editable="true"
+        clearable
+        :editable="false"
         @click="isEmpty()"
         autocomplete
         label="Make Order"
@@ -16,7 +17,8 @@
       </v-flex>
       <v-flex xs12 md4  offset-md4>
         <v-select 
-        :editable="true"
+        clearable
+        :editable="false"
         @click="isEmpty()"
         autocomplete
         label="Take Order"
@@ -34,7 +36,8 @@
 
 
       <v-flex xs12 md2 class='text-xs-center mt-5'>
-        <v-btn :disabled="!takerAddress || !makerAddress" @click="makeOrder()">Make Order</v-btn>
+        <v-btn @click="makeOrder()">Make Order</v-btn>
+        <v-btn @click="makeRawOrder()">Add Raw Order</v-btn>
       </v-flex>
 
 
@@ -66,11 +69,13 @@
       </template>
     </v-data-table>
     <order v-on:close="close()" :new-order="newOrder" :order="order"></order>
+    <raw-order v-on:close="close()"></raw-order>
   </div>
 </template>
 
 <script>
 import Token from '@/components/Token'
+import RawOrder from '@/components/RawOrder'
 import Order from '@/components/Order'
 import axios from 'axios'
 
@@ -80,7 +85,7 @@ import axios from 'axios'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  components: {Order, Token},
+  components: {RawOrder, Order, Token},
   name: 'HelloWorld',
   data () {
     return {

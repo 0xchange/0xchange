@@ -2,94 +2,112 @@
   <v-layout row justify-center>
     <v-dialog v-model="dialog"  max-width="500px">
       <v-card>
-        <v-card-title>
-          <span class="headline">User Profile</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
+        <v-form lazy-validation ref="form">
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap >
 
-              <v-flex xs5>
-                <v-text-field type="number" label="Make Amount" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" required v-model="tmpOrder.makerTokenAmount"></v-text-field>
-              </v-flex>
+                <v-flex xs5 v-if="order && (!order.args.makerToken || !order.args.takerToken)"  >
+                  <v-text-field 
+                  :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAddress.length > 0) || 'This field is required']"
+                  required  label="Maker Token Address" required v-model="tmpOrder.makerTokenAddress"></v-text-field>
+                </v-flex>
 
-              <v-flex xs5 offset-xs1>
-                <v-text-field  type="number" label="Take Amount" :suffix="getTokenSymbol(tmpOrder.takerTokenAddress)" required v-model="tmpOrder.takerTokenAmount"></v-text-field>
-              </v-flex>
+                <v-flex xs5 v-if="order && (!order.args.takerToken || !order.args.makerToken)" offset-xs1>
+                  <v-text-field 
+                  :rules="[() => (tmpOrder.takerTokenAddress && tmpOrder.takerTokenAddress.length > 0) || 'This field is required']"
+                   required label="Taker Token Address" required v-model="tmpOrder.takerTokenAddress"></v-text-field>
+                </v-flex>
 
-              <v-flex xs5>
-                <v-text-field readonly :label="'Make Amount in ' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" required :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
-              </v-flex>
+       
 
-              <v-flex xs5 offset-xs1>
-                <v-text-field readonly :label="'Make Amount in ' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" required :value="convert(tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
-              </v-flex>
+                <v-flex xs5>
+                  <v-text-field 
+                  :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAmount > 0) || 'Amount can\'t be 0']"
+                  type="number" label="Make Amount" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" required v-model="tmpOrder.makerTokenAmount"></v-text-field>
+                </v-flex>
+
+                <v-flex xs5 offset-xs1>
+                  <v-text-field  
+                  :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAmount > 0) || 'Amount can\'t be 0']"
+                  type="number" label="Take Amount" :suffix="getTokenSymbol(tmpOrder.takerTokenAddress)" required v-model="tmpOrder.takerTokenAmount"></v-text-field>
+                </v-flex>
 
 
+                <v-flex xs5>
+                  <v-text-field readonly :label="'Make Amount in ' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
+                </v-flex>
 
-              <v-flex xs6>
-                <v-dialog
-                  v-model="dateMenu"
-                  lazy
-                  full-width
-                >
-                  <v-text-field
-                    slot="activator"
-                    label="Expiration Date"
-                    v-model="tmpOrder.date"
-                    prepend-icon="event"
-                    readonly
-                  ></v-text-field>
-                  <v-date-picker v-model="tmpOrder.date"  actions >
-                    <template scope="{ save, cancel }">
-                      <v-card-actions>
-                        <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
-                        <v-btn flat color="primary" @click="save">Save</v-btn>
-                      </v-card-actions>
-                    </template>
-
-                  </v-date-picker>
-                </v-dialog>
-              </v-flex>
+                <v-flex xs5 offset-xs1>
+                  <v-text-field readonly :label="'Make Amount in ' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
+                </v-flex>
 
 
 
+                <v-flex xs6>
+                  <v-dialog
+                    v-model="dateMenu"
+                    lazy
+                    full-width
+                  >
+                    <v-text-field
+                      slot="activator"
+                      label="Expiration Date"
+                      v-model="tmpOrder.date"
+                      prepend-icon="event"
+                      readonly
+                    ></v-text-field>
+                    <v-date-picker v-model="tmpOrder.date"  actions >
+                      <template scope="{ save, cancel }">
+                        <v-card-actions>
+                          <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
+                          <v-btn flat color="primary" @click="save">Save</v-btn>
+                        </v-card-actions>
+                      </template>
 
-              <v-flex xs6>
-                <v-dialog
-                  
-                  v-model="timeMenu"
-                  lazy
-                  full-width
-                >
-                  <v-text-field
-                    slot="activator"
-                    label="Expiration Time"
-                    v-model="tmpOrder.time"
-                    prepend-icon="access_time"
-                    readonly
-                  ></v-text-field>
-                  <v-time-picker v-model="tmpOrder.time" actions >
-                    <template scope="{ save, cancel }">
-                      <v-card-actions>
-                        <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
-                        <v-btn flat color="primary" @click="save">Save</v-btn>
-                      </v-card-actions>
-                    </template>
-                  </v-time-picker>
-                </v-dialog>
-              </v-flex>
-
+                    </v-date-picker>
+                  </v-dialog>
+                </v-flex>
 
 
-            </v-layout>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" flat @click.native="close()">Close</v-btn>
-          <v-btn color="blue darken-1" flat @click.native="createOrder()">Save</v-btn>
-        </v-card-actions>
+
+
+                <v-flex xs6>
+                  <v-dialog
+                    
+                    v-model="timeMenu"
+                    lazy
+                    full-width
+                  >
+                    <v-text-field
+                      slot="activator"
+                      label="Expiration Time"
+                      v-model="tmpOrder.time"
+                      prepend-icon="access_time"
+                      readonly
+                    ></v-text-field>
+                    <v-time-picker v-model="tmpOrder.time" actions >
+                      <template scope="{ save, cancel }">
+                        <v-card-actions>
+                          <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
+                          <v-btn flat color="primary" @click="save">Save</v-btn>
+                        </v-card-actions>
+                      </template>
+                    </v-time-picker>
+                  </v-dialog>
+                </v-flex>
+
+
+
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat @click.native="close()">Close</v-btn>
+            <v-btn color="blue darken-1" flat @click.native="createOrder()">Save</v-btn>
+          </v-card-actions>
+        </v-form>
       </v-card>
     </v-dialog>
   </v-layout>
@@ -104,7 +122,7 @@ import {mapGetters, mapActions} from 'vuex'
 export default {
 
   name: 'Order',
-  props: ['order'],
+  props: ['order', 'rawOrder'],
   data () {
     return {
       dialog: false,
@@ -161,12 +179,16 @@ export default {
       return (t && t.symbol) || ''
     },
     createOrder () {
-      this.tmpOrder.expirationUnixTimestampSec = new BN(moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz').format('X'))
-      this.tmpOrder.makerFee = new BN(this.tmpOrder.makerFee)
-      this.tmpOrder.takerFee = new BN(this.tmpOrder.takerFee)
-      this.tmpOrder.makerTokenAmount = new BN(this.tmpOrder.makerTokenAmount)
-      this.tmpOrder.takerTokenAmount = new BN(this.tmpOrder.takerTokenAmount)
-      this.submitOrder(this.tmpOrder)
+      if (this.$refs.form.validate()) {
+        this.tmpOrder.expirationUnixTimestampSec = new BN(moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz').format('X'))
+        this.tmpOrder.makerFee = new BN(this.tmpOrder.makerFee)
+        this.tmpOrder.takerFee = new BN(this.tmpOrder.takerFee)
+        this.tmpOrder.makerTokenAmount = new BN(this.tmpOrder.makerTokenAmount)
+        this.tmpOrder.takerTokenAmount = new BN(this.tmpOrder.takerTokenAmount)
+        this.submitOrder(this.tmpOrder).then(() => {
+          this.close()
+        })
+      }
     },
     close () {
       this.$emit('close')
