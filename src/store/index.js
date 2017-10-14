@@ -22,6 +22,7 @@ const state = {
   ZRX_ADDRESS: null, // = await zeroEx.exchange.getZRXTokenAddressAsync();
   EXCHANGE_ADDRESS: null, // = await zeroEx.exchange.getContractAddressAsync();
   rates: {}
+
 }
 
 export default new Vuex.Store({

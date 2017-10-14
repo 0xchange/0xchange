@@ -5,14 +5,14 @@
     <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
       <v-flex xs12 md4>
-        <v-select 
+        <v-select
         label="Take Order"
         v-model="takerAddress"
         v-bind:items="selectTokens(true)">
         </v-select>
-      </v-flex> 
+      </v-flex>
       <v-flex xs12  md4 offset-md2>
-        <v-select 
+        <v-select
         label="Make Order"
         v-model="makerAddress"
         v-bind:items="selectTokens(false)">

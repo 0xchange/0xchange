@@ -3,6 +3,9 @@ import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
 import axios from 'axios'
 import { ZeroEx } from '0x.js'
+import io from 'socket.io-client'
+import CCC from '../socket/ccc.js'
+
 let zeroEx = null
 
 export default {
@@ -28,8 +31,58 @@ export default {
       commit('UPDATE_RATES', results.data)
     })
   },
+  openRateSocket ({commit}, symbols) {
+    const subscription = []
+    const priceSymbols = ['USD', 'CAD', 'BTC']
+    symbols.forEach((symbol) => {
+      priceSymbols.forEach((pSymbol) => {
+        const str = '5~CCCAGG~' + symbol + '~' + pSymbol
+        subscription.push(str)
+      })
+    })
+    console.log(JSON.stringify(subscription))
+    // var quote = {}
+    /* var updateQuote = function (result) {
+      var keys = Object.keys(result)
+      var pair = result.FROMSYMBOL + result.TOSYMBOL
+      if (!quote.hasOwnProperty(pair)) {
+        quote[pair] = {}
+      }
+      for (var i = 0; i < keys.length; ++i) {
+        quote[pair][keys[i]] = result[keys[i]]
+      }
+      quote[pair]['CHANGE24H'] = quote[pair]['PRICE'] - quote[pair]['OPEN24HOUR']
+      quote[pair]['CHANGEPCT24H'] = quote[pair]['CHANGE24H'] / quote[pair]['OPEN24HOUR'] * 100
+      // displayQuote(quote[pair])
+      console.log(quote[pair])
+    } */
+
+    var socket = io.connect('https://streamer.cryptocompare.com/')
+
+    // Format: {SubscriptionId}~{ExchangeName}~{FromSymbol}~{ToSymbol}
+    // Use SubscriptionId 0 for TRADE, 2 for CURRENT and 5 for CURRENTAGG
+    // For aggregate quote updates use CCCAGG as market
+
+    socket.emit('SubAdd', {subs: subscription})
+
+    socket.on('m', function (message) {
+      var messageType = message.substring(0, message.indexOf('~'))
+      var res = {}
+      console.log('msgtype,', messageType)
+      if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
+        res = CCC.CURRENT.unpack(message)
+        if (res.PRICE) {
+          console.log(JSON.stringify(res))
+          commit('UPDATE_RATES', res)
+        }
+        // updateQuote(res)
+      }
+    })
+  },
   connect ({dispatch, commit}) {
-    dispatch('getRates')
+    // dispatch('getRates')
+    // get tokens here
+    dispatch('openRateSocket', ['ETH', 'BTC', 'OMG'])
     let providerEngine = null
     if (window.web3) {
       providerEngine = window.web3.currentProvider
@@ -41,6 +94,9 @@ export default {
       providerEngine.addProvider(new RpcSubprovider({rpcUrl: ROPSTEN_ENDPOINT}))
       providerEngine.start()
     }
+    // Maker Token, Taker Token, Amount of maker token, amount of Taker token
+    // Amount of Taker token that have been filled...
+  // vTak
 
     zeroEx = new ZeroEx(providerEngine)
     // commit('SET_ZERO_EX', zeroEx)
