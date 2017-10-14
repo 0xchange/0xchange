@@ -48,6 +48,7 @@ export default {
       commit('ADD_LOGS', logs)
     })
     zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
+      console.log('tokens returned')
       commit('ADD_TOKENS', tokens)
     })
     commit('SET_NULL_ADDRESS', ZeroEx.NULL_ADDRESS)
@@ -62,6 +63,22 @@ export default {
     })
     zeroEx.getAvailableAddressesAsync().then((addresses) => {
       commit('SET_ADDRESSES', addresses)
+    })
+  },
+  submitOrder ({commit, state}, order) {
+    const orderHash = ZeroEx.getOrderHashHex(order)
+    return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
+      const signedOrder = {
+        ...order,
+        ecSignature
+      }
+      console.log(signedOrder)
+      return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
+        console.log('idk', idk)
+        return idk
+      })
+    }).catch((error) => {
+      console.error(error)
     })
   }
 }
