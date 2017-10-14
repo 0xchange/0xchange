@@ -37,5 +37,8 @@ export default {
   },
   UPDATE_RATE (state, rate) {
     state.rates[rate.from][rate.to] = rate.price
+  },
+  SET_ADDRESSES (state, addresses) {
+    state.addresses = addresses
   }
 }

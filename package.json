@@ -16,9 +16,12 @@
   "dependencies": {
     "0x.js": "^0.21.4",
     "axios": "^0.16.2",
+    "axios-jsonp": "^1.0.1",
     "bignumber": "^1.1.0",
     "fs": "0.0.1-security",
     "socket.io": "^2.0.3",
+    "jsonp": "^0.2.1",
+    "moment": "^2.19.1",
     "vue": "^2.4.2",
     "vue-router": "^2.7.0",
     "vuetify": "^0.16.1",
