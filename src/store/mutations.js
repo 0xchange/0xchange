@@ -34,5 +34,8 @@ export default {
   },
   UPDATE_RATES (state, rates) {
     state.rates = rates
+  },
+  SET_ADDRESSES (state, addresses) {
+    state.addresses = addresses
   }
 }

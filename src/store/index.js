@@ -21,7 +21,8 @@ const state = {
   WETH_ADDRESS: null, // = await zeroEx.etherToken.getContractAddressAsync();
   ZRX_ADDRESS: null, // = await zeroEx.exchange.getZRXTokenAddressAsync();
   EXCHANGE_ADDRESS: null, // = await zeroEx.exchange.getContractAddressAsync();
-  rates: {}
+  rates: {},
+  addresses: []
 }
 
 export default new Vuex.Store({

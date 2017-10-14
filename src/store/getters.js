@@ -14,5 +14,8 @@ export default {
   },
   tokens: (state) => {
     return state.tokens
+  },
+  address: (state) => {
+    return state.addresses.length && state.addresses[0]
   }
 }

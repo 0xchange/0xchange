@@ -20,9 +20,6 @@ export default {
   removeNotification ({commit}, id) {
     commit('REMOVE_MSG', id)
   },
-  setAddresses () {
-
-  },
   getRates ({commit}) {
     axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + this.symbolsString + '&tsyms=USD,CAD').then((results) => {
       commit('UPDATE_RATES', results.data)
@@ -62,6 +59,9 @@ export default {
     })
     zeroEx.exchange.getContractAddressAsync().then((address) => {
       commit('SET_EXCHANGE_ADDRESS', address)
+    })
+    zeroEx.getAvailableAddressesAsync().then((addresses) => {
+      commit('SET_ADDRESSES', addresses)
     })
   }
 }

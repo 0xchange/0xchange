@@ -4,19 +4,27 @@
     <v-btn @click="deposit()">deposit</v-btn>
     <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
-      <v-flex xs12 md4>
+      <v-flex xs12 md4 offset-md1>
         <v-select 
         label="Take Order"
         v-model="takerAddress"
         v-bind:items="selectTokens(true)">
         </v-select>
       </v-flex> 
-      <v-flex xs12  md4 offset-md2>
+      <v-flex xs12  md4 offset-md1>
         <v-select 
         label="Make Order"
         v-model="makerAddress"
         v-bind:items="selectTokens(false)">
         </v-select>
+      </v-flex>
+    </v-layout>
+    <v-layout row wrap>
+      <v-flex xs12 md4 offset-md1>
+       <token :token="takerAddress"></token>
+      </v-flex> 
+      <v-flex xs12  md4 offset-md1>
+        <token :token="makerAddress"></token>
       </v-flex>
     </v-layout>
 
@@ -36,26 +44,25 @@
         <td class="text-xs-right">{{ formatDecimals(props.item.args.makerToken, props.item.args.paidMakerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.args.takerToken, props.item.args.paidTakerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.args.takerToken, props.item.args.filledTakerTokenAmount) }}</td>
-        <td class="text-xs-right"><v-btn @click="take(props.item)">Take</v-btn></td>
+        <td class="text-xs-right"><v-btn @click.native.stop="take(props.item)">Take</v-btn></td>
       </template>
     </v-data-table>
-    <order @close="close" v-if="order" :order="order"></order>
+    <order v-on:close="close()" :order="order"></order>
   </div>
 </template>
 
 <script>
+import Token from '@/components/Token'
 import Order from '@/components/Order'
 import axios from 'axios'
-// import ProviderEngine from 'web3-provider-engine'
-// import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
-// import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
+
 import { ZeroEx } from '0x.js'
 import BN from 'bignumber.js'
 
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  components: {Order},
+  components: {Order, Token},
   name: 'HelloWorld',
   data () {
     return {
@@ -131,9 +138,10 @@ export default {
   methods: {
     ...mapActions(['connect']),
     close () {
+      console.log('close')
       this.order = null
     },
-    take (order) {
+    take (order, e) {
       this.order = order
     },
     formatDecimals (tokenAddress, amount) {
