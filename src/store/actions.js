@@ -8,6 +8,9 @@ import CCC from '../socket/ccc.js'
 
 let zeroEx = null
 
+// option for prices
+const priceSymbols = ['USD', 'CAD', 'BTC']
+
 export default {
   addNotification ({commit}, msg) {
     let id = new Date().getTime()
@@ -26,14 +29,20 @@ export default {
   setAddresses () {
 
   },
-  getRates ({commit}) {
-    axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + this.symbolsString + '&tsyms=USD,CAD').then((results) => {
+  getRates ({commit}, symbols) {
+    const symbolsString = symbols.join()
+    const priceSymbolsString = priceSymbols.join()
+    axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString).then((results) => {
       commit('UPDATE_RATES', results.data)
     })
   },
   openRateSocket ({commit}, symbols) {
     const subscription = []
-    const priceSymbols = ['USD', 'CAD', 'BTC']
+
+    // Format: {SubscriptionId}~{ExchangeName}~{FromSymbol}~{ToSymbol}
+    // Use SubscriptionId 0 for TRADE, 2 for CURRENT and 5 for CURRENTAGG
+    // For aggregate quote updates use CCCAGG as market
+
     symbols.forEach((symbol) => {
       priceSymbols.forEach((pSymbol) => {
         const str = '5~CCCAGG~' + symbol + '~' + pSymbol
@@ -41,46 +50,26 @@ export default {
       })
     })
     console.log(JSON.stringify(subscription))
-    // var quote = {}
-    /* var updateQuote = function (result) {
-      var keys = Object.keys(result)
-      var pair = result.FROMSYMBOL + result.TOSYMBOL
-      if (!quote.hasOwnProperty(pair)) {
-        quote[pair] = {}
-      }
-      for (var i = 0; i < keys.length; ++i) {
-        quote[pair][keys[i]] = result[keys[i]]
-      }
-      quote[pair]['CHANGE24H'] = quote[pair]['PRICE'] - quote[pair]['OPEN24HOUR']
-      quote[pair]['CHANGEPCT24H'] = quote[pair]['CHANGE24H'] / quote[pair]['OPEN24HOUR'] * 100
-      // displayQuote(quote[pair])
-      console.log(quote[pair])
-    } */
 
     var socket = io.connect('https://streamer.cryptocompare.com/')
-
-    // Format: {SubscriptionId}~{ExchangeName}~{FromSymbol}~{ToSymbol}
-    // Use SubscriptionId 0 for TRADE, 2 for CURRENT and 5 for CURRENTAGG
-    // For aggregate quote updates use CCCAGG as market
 
     socket.emit('SubAdd', {subs: subscription})
 
     socket.on('m', function (message) {
       var messageType = message.substring(0, message.indexOf('~'))
       var res = {}
-      console.log('msgtype,', messageType)
       if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
         res = CCC.CURRENT.unpack(message)
         if (res.PRICE) {
-          console.log(JSON.stringify(res))
-          commit('UPDATE_RATES', res)
+          const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
+          console.log(JSON.stringify(rate))
+          commit('UPDATE_RATE', rate)
         }
-        // updateQuote(res)
       }
     })
   },
   connect ({dispatch, commit}) {
-    // dispatch('getRates')
+    dispatch('getRates', ['ETH', 'BTC', 'OMG'])
     // get tokens here
     dispatch('openRateSocket', ['ETH', 'BTC', 'OMG'])
     let providerEngine = null
