@@ -1,22 +1,38 @@
 <template>
   <div class="hello">
-    <v-btn @click="withdraw(eth)">withdraw</v-btn>
+<!--     <v-btn @click="withdraw(eth)">withdraw</v-btn>
     <v-btn @click="deposit(eth)">deposit</v-btn>
-    <input placeholder="Gwei" v-model="eth">
+    <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
       <v-flex xs12 md4>
         <v-select
-        :editable="true"
+        clearable
+        :editable="false"
         @click="isEmpty()"
         autocomplete
         label="Make Order"
         v-model="makerAddress"
+        :search-input.sync="searchMakerAddress"
         v-bind:items="selectTokens(false)">
+          <template slot="no-data">
+            <v-layout>
+              <v-flex>
+                <v-btn
+                 block
+                 flat
+                 color="success"
+                 @click="checkBeforeAdding(searchMakerAddress)">
+                  Add Token Address {{ searchMakerAddress }}
+                </v-btn>
+              </v-flex>
+            </v-layout>
+          </template>
         </v-select>
       </v-flex>
       <v-flex xs12 md4  offset-md4>
         <v-select
-        :editable="true"
+        clearable
+        :editable="false"
         @click="isEmpty()"
         autocomplete
         label="Take Order"
@@ -29,17 +45,18 @@
 
     <v-layout row wrap>
       <v-flex xs12 md4 offset-md1>
-       <token :token="takerAddress"></token>
+       <token :token="getTokenSymbol(makerAddress)"></token>
       </v-flex>
 
 
       <v-flex xs12 md2 class='text-xs-center mt-5'>
-        <v-btn :disabled="!takerAddress || !makerAddress" @click="makeOrder()">Make Order</v-btn>
+        <v-btn @click="makeOrder()">Make Order</v-btn>
+        <v-btn @click="makeRawOrder()">Add Raw Order</v-btn>
       </v-flex>
 
 
       <v-flex xs12  md4 >
-        <token :token="makerAddress"></token>
+        <token :token="getTokenSymbol(takerAddress)"></token>
       </v-flex>
     </v-layout>
 
@@ -48,31 +65,32 @@
     </v-layout>
 
     <v-data-table
+      :total-items="totalItems"
+      :pagination.sync="pagination"
       v-bind:headers="headers"
-      :items="logsFiltered"
+      :items="orders"
       class="elevation-1"
     >
       <template slot="items" scope="props">
       <!-- :class="goodPrice(props.item.args)" -->
-        <td class="text-xs-right">{{ calculateOrderRates(props.item.args) }}</td>
-        <td class="text-xs-right">{{ getToken(props.item.args.makerToken) }}</td>
-        <td class="text-xs-right">{{ getToken(props.item.args.takerToken) }}</td>
-<!--         <td class="text-xs-right">{{ shorten(props.item.args.maker) }}</td>
-        <td class="text-xs-right">{{ shorten(props.item.args.taker) }}</td> -->
-        <td class="text-xs-right">{{ shorten(props.item.args.feeRecipient) }}</td>
-        <td class="text-xs-right">{{ formatDecimals(props.item.args.makerToken, props.item.args.filledMakerTokenAmount) }}</td>
-        <td class="text-xs-right">{{ formatDecimals(props.item.args.makerToken, props.item.args.paidMakerFee) }}</td>
-        <td class="text-xs-right">{{ formatDecimals(props.item.args.takerToken, props.item.args.paidTakerFee) }}</td>
-        <td class="text-xs-right">{{ formatDecimals(props.item.args.takerToken, props.item.args.filledTakerTokenAmount) }}</td>
+        <td class="text-xs-right">{{ calculateOrderRates(props.item) }}</td>
+        <td class="text-xs-right">{{ getTokenSymbol(props.item.makertokenaddress) }}</td>
+        <td class="text-xs-right">{{ shorten(props.item.makerfee) }}</td>
+        <td class="text-xs-right">{{ formatDecimals(props.item.makertokenaddress, props.item.makertokenamount) }}</td>
+        <td class="text-xs-right">{{ getTokenSymbol(props.item.takertokenaddress) }}</td>
+        <td class="text-xs-right">{{ shorten(props.item.takerfee) }}</td>
+        <td class="text-xs-right">{{ formatDecimals(props.item.takertokenaddress, props.item.takertokenamount) }}</td>
         <td class="text-xs-right"><v-btn @click.native.stop="take(props.item)">Take</v-btn></td>
       </template>
     </v-data-table>
     <order v-on:close="close()" :new-order="newOrder" :order="order"></order>
+    <raw-order v-on:close="close()" :raw-order="rawOrder"></raw-order>
   </div>
 </template>
 
 <script>
 import Token from '@/components/Token'
+import RawOrder from '@/components/RawOrder'
 import Order from '@/components/Order'
 import _ from 'lodash'
 // import axios from 'axios'
@@ -83,18 +101,20 @@ import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  components: {Order, Token},
+  components: {RawOrder, Order, Token},
   name: 'HelloWorld',
   data () {
     return {
       desiredCurrency: 'USD',
+      pagination: { sortBy: 'makerfee', page: 1, rowsPerPage: 10, descending: false, totalItems: 0 },
       takerAddress: null,
       makerAddress: null,
-      paged: 0,
-      limit: 3,
+      searchTakerAddress: null,
+      searchMakerAddress: null,
       eth: 0,
       exchangeResults: {},
       newOrder: false,
+      rawOrder: null,
       order: null,
       headers: [
         {
@@ -102,55 +122,55 @@ export default {
           value: 'args.price'
         },
         {
-          text: 'takerToken',
-          value: 'args.takerToken'
+          text: 'makertokenaddress',
+          value: 'makertokenaddress'
         },
         {
-          text: 'makerToken',
-          value: 'args.makerToken'
-        },
-        // {
-        //   text: 'maker',
-        //   value: 'args.maker'
-        // },
-        // {
-        //   text: 'taker',
-        //   value: 'args.taker'
-        // },
-        {
-          text: 'feeRecipient',
-          value: 'args.feeRecipient'
+          text: 'makerfee',
+          value: 'makerfee'
         },
         {
-          text: 'filledMakerTokenAmount',
-          value: 'args.filledMakerTokenAmount'
+          text: 'makertokenamount',
+          value: 'makertokenamount'
         },
         {
-          text: 'paidMakerFee',
-          value: 'args.paidMakerFee'
+          text: 'takertokenaddress',
+          value: 'takertokenaddress'
         },
         {
-          text: 'paidTakerFee',
-          value: 'args.paidTakerFee'
+          text: 'takerfee',
+          value: 'takerfee'
         },
         {
-          text: 'filledTakerTokenAmount',
-          value: 'args.filledTakerTokenAmount'
+          text: 'takertokenamount',
+          value: 'takertokenamount'
         }
       ]
+    }
+  },
+  watch: {
+    symbolsString () {
+      this.getExchange()
+    },
+    pagination: {
+      handler () {
+        this.setPagination(this.pagination)
+        this.pageServer(this.pagination)
+      },
+      deep: true
     }
   },
   mounted () {
     this.connect()
   },
   computed: {
-    ...mapGetters(['logs', 'tokens', 'rates']),
+    ...mapGetters(['logs', 'tokens', 'totalItems', 'orders', 'rates', 'addressList']),
     logsFiltered () {
       return this.logs.filter((con) => {
-        return (this.takerAddress && !this.makerAddress && con.args.takerToken === this.takerAddress) ||
-        (this.makerAddress && !this.takerAddress && con.args.makerToken === this.makerAddress) ||
+        return (this.takerAddress && !this.makerAddress && con.takertokenaddress === this.takerAddress) ||
+        (this.makerAddress && !this.takerAddress && con.makertokenaddress === this.makerAddress) ||
         (!this.takerAddress && !this.makerAddress) ||
-        (this.takerAddress && con.args.takerToken === this.takerAddress && this.makerAddress && con.args.makerToken === this.makerAddress)
+        (this.takerAddress && con.takertokenaddress === this.takerAddress && this.makerAddress && con.makertokenaddress === this.makerAddress)
       })
     }
   },
@@ -163,17 +183,26 @@ export default {
         badPrice: ourPrice > theirPrice
       }
     },
+    ...mapActions(['connect', 'withdraw', 'deposit', 'pageServer', 'setPagination', 'addTokenAddress']),
+    checkBeforeAdding (address) {
+      this.addTokenAddress(address)
+      // alert(address)
+      // Perform your AJAX call to backend here :D
+    },
+    isEmpty () {
+      console.log('isEmpty')
+    },
     calculateOrderRates (order) {
-      const {makerToken, takerToken, filledMakerTokenAmount, filledTakerTokenAmount} = order
-      // console.log('order...', order)
-      // console.log('takernum: ' + filledTakerTokenAmount.toNumber())
-      // console.log('Makernum: ' + filledMakerTokenAmount.toNumber())
-      const ratio = filledTakerTokenAmount.toNumber() / filledMakerTokenAmount.toNumber()
+      console.log('order!', order)
+      const {makerTokenAddress, takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
+      const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
+      const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
+      const ratio = takerTokenAmount.toNumber() / makerTokenAmount.toNumber()
       console.log('ratio: ' + ratio)
-      console.log('takerToken', takerToken)
-      console.log('toksymbol', this.getTokenSymbol(makerToken))
+      console.log('takerToken', takerTokenSymbol)
+      console.log('toksymbol', makerTokenSymbol)
       // console.log(this.rates)
-      const takerOrderRates = this.rates[this.getTokenSymbol(takerToken)]
+      const takerOrderRates = this.rates[takerTokenSymbol]
       if (!takerOrderRates) return ''
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
       return makerOrderRates[this.desiredCurrency]
@@ -182,6 +211,7 @@ export default {
     close () {
       console.log('close')
       this.order = null
+      this.rawOrder = null
     },
     makeOrder () {
       this.newOrder = true
@@ -191,6 +221,9 @@ export default {
           takerToken: this.takerAddress
         }
       }
+    },
+    makeRawOrder () {
+      this.rawOrder = true
     },
     take (order, e) {
       this.newOrder = false
@@ -224,7 +257,7 @@ export default {
     },
     tokenQuant (address, maker) {
       return this.logsFiltered.filter((log) => {
-        return (!maker && log.args.makerToken === address) || (maker && log.args.takerToken === address)
+        return (!maker && log.makertokenaddress === address) || (maker && log.takertokenaddress === address)
       }).length
     },
     shorten (str) {
@@ -237,12 +270,19 @@ export default {
       return t && t.name
     },
     getTokenSymbol (address) {
-      let t = this.tokens.find((token) => {
-        return token.address === address
-      })
-      if (!t) return ''
-      const symbol = (t.symbol === 'WETH') ? 'ETH' : t.symbol
-      return t && symbol
+      // let t = this.tokens.find((token) => {
+      //   return token.address === address
+      // })
+      // if (!t) return ''
+      // const symbol = (t.symbol === 'WETH') ? 'ETH' : t.symbol
+      // return t && symbol
+      console.log('addresslistpls', this.addressList)
+      if (!this.addressList[address]) {
+        console.log('why did this not work?', address)
+        return ''
+      }
+      const tempSymbol = this.addressList[address].symbol
+      return (tempSymbol === 'WETH') ? 'ETH' : tempSymbol
     }
   }
 }

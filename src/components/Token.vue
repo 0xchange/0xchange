@@ -15,9 +15,16 @@ export default {
 
     }
   },
+  methods: {
+    random () {
+      return Math.floor(Math.random() * 7) + 1
+    }
+  },
   computed: {
     ...mapGetters(['tokens', 'coinList']),
     bgImage () {
+      let url = !this.coinList[this.token] ? '/static/emoji_' + this.random() + '.png' : 'https://cryptocompare.com/' + this.coinList[this.token].ImageUrl
+      return 'background-image: url("' + url + '")'
     }
   }
 }
@@ -31,5 +38,8 @@ export default {
   border-radius: 100%;
   margin-left: auto;
   margin-right: auto;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 </style>

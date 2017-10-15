@@ -40,5 +40,14 @@ export default {
   },
   SET_ADDRESSES (state, addresses) {
     state.addresses = addresses
+  },
+  ADD_ORDER (state, order) {
+    state.orders.push(order)
+  },
+  ADD_ORDERS (state, orders) {
+    state.orders = orders
+  },
+  SET_PAGINATION (state, pagination) {
+    state.pagination = pagination
   }
 }

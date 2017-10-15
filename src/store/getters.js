@@ -1,4 +1,3 @@
-
 export default {
   loading: (state) => {
     return state.loading
@@ -37,5 +36,22 @@ export default {
   },
   conversion: (state) => {
     return state.conversion
+  },
+  coinList (state) {
+    return state.coinList.Data
+  },
+  addressList (state) {
+    let addresses = {}
+    state.coinList.forEach((coin) => {
+      addresses[coin.address] = coin
+    })
+    console.log('addresses', addresses)
+    return addresses
+  },
+  totalItems (state) {
+    return state.totalItems
+  },
+  orders (state) {
+    return state.orders
   }
 }
