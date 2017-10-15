@@ -65,7 +65,6 @@
     </v-layout>
 
     <v-data-table
-      :pagination.sync="pagination"
       v-bind:headers="headers"
       :items="orders"
       class="elevation-1"
@@ -108,7 +107,7 @@ export default {
   data () {
     return {
       desiredCurrency: 'USD',
-      pagination: { sortBy: 'makerFee', page: 1, rowsPerPage: 20, descending: false, totalItems: 0 },
+      pagination: { sortBy: 'makerFee', page: 1, rowsPerPage: 5, descending: false, totalItems: 0 },
       takerAddress: null,
       makerAddress: null,
       searchTakerAddress: null,
@@ -157,13 +156,6 @@ export default {
   watch: {
     symbolsString () {
       this.getExchange()
-    },
-    pagination: {
-      handler () {
-        this.setPagination(this.pagination)
-        this.pageServer(this.pagination)
-      },
-      deep: true
     }
   },
   mounted () {

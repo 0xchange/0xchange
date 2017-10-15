@@ -159,11 +159,15 @@ export default {
   setPagination ({commit}, pagination) {
     commit('SET_PAGINATION', pagination)
   },
-  fillOrder ({commit}, order) {
-    console.log(order)
-    zeroEx.exchange.fillOrderAsync(order.raw, order.takerTokenAmount, false, order.raw.taker).then((result) => {
+  fillOrder ({commit, getters}, {order, amount}) {
+    console.log(zeroEx)
+    console.log(getters.address)
+    zeroEx.exchange.validateFillOrderThrowIfInvalidAsync(order, amount, getters.address, (result) => {
       console.log(result)
     })
+    // zeroEx.exchange.fillOrderAsync(order, order.takerTokenAmount, false, order.taker).then((result) => {
+    //   console.log(result)
+    // })
   },
   submitOrder ({commit, state, dispatch}, order) {
     // console.log('hier?')
