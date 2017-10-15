@@ -37,6 +37,9 @@ export default {
   conversion: (state) => {
     return state.conversion
   },
+  cryptoList (state) {
+    return state.cryptoList
+  },
   coinList (state) {
     return state.coinList
   },

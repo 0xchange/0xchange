@@ -4,7 +4,7 @@
     <v-btn @click="deposit(eth)">deposit</v-btn>
     <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
-      <v-flex xs12 md4>
+      <v-flex xs12 sm4>
         <v-select
         clearable
         :editable="false"
@@ -45,8 +45,8 @@
 
     <v-layout row wrap>
       <v-flex xs12 sm4 offset-sm1>
-<!--        <token :token="getTokenSymbol(makerAddress)"></token>
- -->      </v-flex>
+       <token :token="makerAddress"></token>
+      </v-flex>
 
 
       <v-flex xs12 sm2 class='text-xs-center mt-5'>
@@ -56,8 +56,8 @@
 
 
       <v-flex xs12  sm4 >
-<!--         <token :token="getTokenSymbol(takerAddress)"></token>
- -->      </v-flex>
+        <token :token="takerAddress"></token>
+      </v-flex>
     </v-layout>
 
 
@@ -92,7 +92,7 @@
 import Token from '@/components/Token'
 import RawOrder from '@/components/RawOrder'
 import Order from '@/components/Order'
-// import _ from 'lodash'
+import _ from 'lodash'
 // import axios from 'axios'
 
 // import { ZeroEx } from '0x.js'
@@ -193,20 +193,19 @@ export default {
       console.log('isEmpty')
     },
     calculateOrderRates (order) {
-      return ''
-      // console.log('order!', order)
-      // const {makerTokenAddress, takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
-      // const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
-      // const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
-      // const ratio = takerTokenAmount.toNumber() / makerTokenAmount.toNumber()
-      // console.log('ratio: ' + ratio)
-      // console.log('takerToken', takerTokenSymbol)
-      // console.log('toksymbol', makerTokenSymbol)
-      // // console.log(this.rates)
-      // const takerOrderRates = this.rates[takerTokenSymbol]
-      // if (!takerOrderRates) return ''
-      // const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
-      // return makerOrderRates[this.desiredCurrency]
+      console.log('order!', order)
+      const {makerTokenAddress, takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
+      const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
+      const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
+      const ratio = takerTokenAmount / makerTokenAmount
+      console.log('ratio: ' + ratio)
+      console.log('takerToken', takerTokenSymbol)
+      console.log('toksymbol', makerTokenSymbol)
+      // console.log(this.rates)
+      const takerOrderRates = this.rates[takerTokenSymbol]
+      if (!takerOrderRates) return ''
+      const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
+      return makerOrderRates[this.desiredCurrency]
     },
     close () {
       this.order = null

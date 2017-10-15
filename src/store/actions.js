@@ -120,17 +120,17 @@ export default {
     //   //   console.log(result)
     //   // })
     // })
-    zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
-      console.log('tokens returned')
-      commit('ADD_TOKENS', tokens)
-      console.log('tokens:', tokens)
-      const symbols = getters.tokenSymbols
-      var index = symbols.indexOf('WETH')
-      if (index !== -1) {
-        symbols[index] = 'ETH'
-      }
-      dispatch('getRates', symbols)
-    })
+    // zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
+    //   console.log('tokens returned')
+    //   commit('ADD_TOKENS', tokens)
+    //   console.log('tokens:', tokens)
+    //   const symbols = getters.tokenSymbols
+    //   var index = symbols.indexOf('WETH')
+    //   if (index !== -1) {
+    //     symbols[index] = 'ETH'
+    //   }
+    //   dispatch('getRates', symbols)
+    // })
     commit('SET_NULL_ADDRESS', ZeroEx.NULL_ADDRESS)
     zeroEx.etherToken.getContractAddressAsync().then((address) => {
       commit('SET_WETH_ADDRESS', address)
@@ -200,6 +200,7 @@ export default {
     axios.get('http://138.197.172.238/token')
     .then((results) => {
       console.log(results.data)
+      commit('ADD_TOKENS', results.data)
       commit('ADD_COINLIST', results.data)
     })
 

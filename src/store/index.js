@@ -7,7 +7,7 @@ import getters from './getters'
 import mutations from './mutations'
 
 Vue.use(Vuex)
-// let coinList = require('../assets/coinlist.json')
+let coinList = require('../assets/coinlist.json')
 
 // const debug = process.env.NODE_ENV !== 'production'
 const debug = false
@@ -26,6 +26,7 @@ const state = {
   addresses: [],
   conversion: 'WETH',
   // coinList,
+  cryptoList: coinList.Data,
   coinList: [],
   orders: [],
   totalItems: 0
