@@ -49,10 +49,10 @@ export default {
     axios.get(testString).then((results) => {
       // console.log('THE RATES HAVE BEEN UPDATED', results.data)
       commit('UPDATE_RATES', results.data)
-      const socketSymbols = getters.coinList.map((coin) => {
-        return coin.symbol
-      })
-      dispatch('openRateSocket', socketSymbols)
+      // const socketSymbols = getters.coinList.map((coin) => {
+      //   return coin.symbol
+      // })
+      // dispatch('openRateSocket', socketSymbols)
     })
   },
   openRateSocket ({commit}, symbols) {
@@ -80,9 +80,9 @@ export default {
       if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
         res = CCC.CURRENT.unpack(message)
         if (res.PRICE) {
-          const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
+          // const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
           // console.log(JSON.stringify(rate))
-          commit('UPDATE_RATE', rate)
+          // commit('UPDATE_RATE', rate)
         }
       }
     })
@@ -272,8 +272,10 @@ export default {
         symbols.push(takerSymbol)
       })
       // const symbols = filteredData.map((coin) => { return coin.symbol })
-
       dispatch('getRates', symbols)
+      setInterval(() => {
+        dispatch('getRates', symbols)
+      }, 5000)
     })
   }
 }
