@@ -166,7 +166,7 @@ export default {
     this.connect()
   },
   computed: {
-    ...mapGetters(['tokens', 'totalItems', 'orders', 'rates', 'addressList']),
+    ...mapGetters(['tokens', 'totalItems', 'orders', 'rates', 'addressList'])
     // logsFiltered () {
     //   return this.logs.filter((con) => {
     //     return (this.takerAddress && !this.makerAddress && con.takerTokenAddress === this.takerAddress) ||
