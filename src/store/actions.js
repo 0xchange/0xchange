@@ -162,12 +162,19 @@ export default {
   fillOrder ({commit, getters}, {order, amount}) {
     console.log(zeroEx)
     console.log(getters.address)
-    zeroEx.exchange.validateFillOrderThrowIfInvalidAsync(order, amount, getters.address, (result) => {
-      console.log(result)
-    })
-    // zeroEx.exchange.fillOrderAsync(order, order.takerTokenAmount, false, order.taker).then((result) => {
+    // let copyOrder = JSON.parse(JSON.stringify(order))
+    let sig = order.ecSignature
+    delete order.ecSignature
+    console.log(order)
+    let orderHash = ZeroEx.getOrderHashHex(order)
+    console.log('HASH', orderHash)
+    order.ecSignature = sig
+    // zeroEx.exchange.validateFillOrderThrowIfInvalidAsync(order, amount, getters.address, (result) => {
     //   console.log(result)
     // })
+    zeroEx.exchange.fillOrderAsync(order, order.takerTokenAmount, false, getters.address).then((result) => {
+      console.log(result)
+    })
   },
   submitOrder ({commit, state, dispatch}, order) {
     // console.log('hier?')
@@ -184,7 +191,7 @@ export default {
     // }
 
     let orderHash = ZeroEx.getOrderHashHex(order)
-    // console.log(orderHash)
+    console.log('HASH', orderHash)
     return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
       const signedOrder = {
         ...order,
