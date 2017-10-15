@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export default {
   LOADING (state, val) {
     state.loading = val
@@ -36,7 +38,7 @@ export default {
     state.rates = rates
   },
   UPDATE_RATE (state, rate) {
-    state.rates[rate.from][rate.to] = rate.price
+    _.set(state.rates, [rate.from, rate.to], rate.price)
   },
   SET_ADDRESSES (state, addresses) {
     state.addresses = addresses

@@ -7,26 +7,26 @@
             <v-container grid-list-md>
               <v-layout wrap >
                 <v-flex xs5 v-if="shouldShow"  >
-                  <v-text-field 
+                  <v-text-field
                   :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAddress.length > 0) || 'This field is required']"
                   required  label="Maker Token Address" required v-model="tmpOrder.makerTokenAddress"></v-text-field>
                 </v-flex>
                 <v-flex xs5 v-if="shouldShow" offset-xs1>
-                  <v-text-field 
+                  <v-text-field
                   :rules="[() => (tmpOrder.takerTokenAddress && tmpOrder.takerTokenAddress.length > 0) || 'This field is required']"
                    required label="Taker Token Address" required v-model="tmpOrder.takerTokenAddress"></v-text-field>
                 </v-flex>
 
-       
+
 
                 <v-flex xs5>
-                  <v-text-field 
+                  <v-text-field
                   :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAmount > 0) || 'Amount can\'t be 0']"
                   type="number" label="Make Amount" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" required v-model="tmpOrder.makerTokenAmount"></v-text-field>
                 </v-flex>
 
                 <v-flex xs5 offset-xs1>
-                  <v-text-field  
+                  <v-text-field
                   :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAmount > 0) || 'Amount can\'t be 0']"
                   type="number" label="Take Amount" :suffix="getTokenSymbol(tmpOrder.takerTokenAddress)" required v-model="tmpOrder.takerTokenAmount"></v-text-field>
                 </v-flex>
@@ -72,7 +72,7 @@
 
                 <v-flex xs6>
                   <v-dialog
-                    
+
                     v-model="timeMenu"
                     lazy
                     full-width

@@ -41,7 +41,7 @@ export default {
   removeNotification ({commit}, id) {
     commit('REMOVE_MSG', id)
   },
-  getRates ({commit, dispatch}, symbols) {
+  getRates ({commit, dispatch, getters}, symbols) {
     const symbolsString = symbols.join()
     const priceSymbolsString = priceSymbols.join()
     const testString = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString
@@ -49,7 +49,10 @@ export default {
     axios.get(testString).then((results) => {
       console.log('THE RATES HAVE BEEN UPDATED', results.data)
       commit('UPDATE_RATES', results.data)
-      dispatch('openRateSocket', symbols)
+      const socketSymbols = getters.coinList.map((coin) => {
+        return coin.symbol
+      })
+      dispatch('openRateSocket', socketSymbols)
     })
   },
   openRateSocket ({commit}, symbols) {
@@ -77,9 +80,9 @@ export default {
       if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
         res = CCC.CURRENT.unpack(message)
         if (res.PRICE) {
-          // const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
+          const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
           // console.log(JSON.stringify(rate))
-          // commit('UPDATE_RATE', rate)
+          commit('UPDATE_RATE', rate)
         }
       }
     })
@@ -129,7 +132,7 @@ export default {
     //   if (index !== -1) {
     //     symbols[index] = 'ETH'
     //   }
-    //   dispatch('getRates', symbols)
+    //
     // })
     commit('SET_NULL_ADDRESS', ZeroEx.NULL_ADDRESS)
     zeroEx.etherToken.getContractAddressAsync().then((address) => {
@@ -216,7 +219,35 @@ export default {
     axios.get('//138.197.172.238/token')
     .then((results) => {
       console.log(results.data)
-      commit('ADD_COINLIST', results.data)
+      const filteredData = results.data.filter((coin) => {
+        const s = coin.symbol
+        if (/[^a-zA-Z0-9]/.test(s)) {
+          return false
+        } else {
+          return ((s.toUpperCase() === s) && s.length < 5)
+        }
+      })
+      const mappedData = filteredData.map((coin) => {
+        const newCoin = coin
+        newCoin.address = newCoin.address.toLowerCase()
+        return newCoin
+      })
+      commit('ADD_COINLIST', mappedData)
+      console.log('orders---', getters.orders)
+      const symbols = []
+      getters.orders.forEach((order) => {
+        console.log('makerAddress', order.makerTokenAddress)
+        console.log('AddressList', getters.addressList)
+        let makerSymbol = getters.addressList[order.makerTokenAddress].symbol
+        let takerSymbol = getters.addressList[order.takerTokenAddress].symbol
+        makerSymbol = (makerSymbol === 'WETH') ? 'ETH' : makerSymbol
+        takerSymbol = (takerSymbol === 'WETH') ? 'ETH' : takerSymbol
+        symbols.push(makerSymbol)
+        symbols.push(takerSymbol)
+      })
+      // const symbols = filteredData.map((coin) => { return coin.symbol })
+
+      dispatch('getRates', symbols)
     })
   }
 }
