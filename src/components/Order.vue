@@ -176,7 +176,7 @@ export default {
     ...mapActions(['submitOrder', 'fillOrder']),
     convert (address, amount) {
       const allRates = this.rates[this.getTokenSymbol(address)]
-      if (!allRates) return ''
+      if (!allRates || !allRates['USD']) return ''
       else return allRates['USD'].toFixed(3)
     },
     orderPrice (makerTokenAddress, makerTokenAmount, takerTokenAddress, takerTokenAmount) {
@@ -187,6 +187,7 @@ export default {
       const takerOrderRates = this.rates[takerTokenSymbol]
       if (!takerOrderRates) return '??'
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
+      if (!makerOrderRates['USD']) return ''
       return (makerOrderRates && makerOrderRates['USD'].toFixed(3)) || ''
     },
     getTokenSymbol (tokenAddress) {
