@@ -198,7 +198,7 @@ export default {
       const {makerTokenAddress, takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
       const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
       const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
-      const ratio = takerTokenAmount.toNumber() / makerTokenAmount.toNumber()
+      const ratio = takerTokenAmount / makerTokenAmount
       console.log('ratio: ' + ratio)
       console.log('takerToken', takerTokenSymbol)
       console.log('toksymbol', makerTokenSymbol)

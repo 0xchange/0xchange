@@ -21,9 +21,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['tokens', 'coinList']),
+    ...mapGetters(['tokens', 'addressList']),
     bgImage () {
-      let url = !this.coinList[this.token] ? '/static/emoji_' + this.random() + '.png' : 'https://cryptocompare.com/' + this.coinList[this.token].ImageUrl
+      let url = !this.addressList[this.token] ? '/static/emoji_' + this.random() + '.png' : 'https://cryptocompare.com/' + this.addressList[this.token].ImageUrl
       return 'background-image: url("' + url + '")'
     }
   }
