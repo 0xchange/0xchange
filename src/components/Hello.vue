@@ -50,7 +50,7 @@
 
 
       <v-flex xs12 sm2 class='text-xs-center mt-5'>
-        <v-btn @click="makeOrder()">Make Order</v-btn>
+        <v-btn :disabled="!makerAddress || !takerAddress" @click="makeOrder()">Make Order</v-btn>
         <v-btn @click="makeToken()">Add New Token</v-btn>
       </v-flex>
 

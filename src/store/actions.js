@@ -159,7 +159,7 @@ export default {
   setPagination ({commit}, pagination) {
     commit('SET_PAGINATION', pagination)
   },
-  fillOrder ({commit, getters}, {order, amount}) {
+  fillOrder ({commit, getters, dispatch}, {order, amount}) {
     console.log(zeroEx)
     console.log(getters.address)
     // let copyOrder = JSON.parse(JSON.stringify(order))
@@ -174,6 +174,11 @@ export default {
     // })
     zeroEx.exchange.fillOrderAsync(order, order.takerTokenAmount, false, getters.address).then((result) => {
       console.log(result)
+      dispatch('addNotification', {type: 'success', 'text': 'Order filled, database will update shortly'})
+      dispatch('pageServer')
+    }).catch((error) => {
+      console.error(error)
+      dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
     })
   },
   submitOrder ({commit, state, dispatch}, order) {
@@ -189,31 +194,38 @@ export default {
     //     dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
     //   }
     // }
+    try {
+      var orderHash = ZeroEx.getOrderHashHex(order)
+      console.log('HASH', orderHash)
+      return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
+        const signedOrder = {
+          ...order,
+          ecSignature
+        }
+        // console.log(signedOrder)
+        // commit('ADD_ORDER', signedOrder)
+        return axios.post('//api.0xchange.me/order/new', signedOrder).then((results) => {
+          // console.log(results)
+          dispatch('pageServer')
+          dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
+        }).catch((error) => {
+          dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
+          console.error(error)
+        })
+        // return signedOrder
+        // return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
+        //   console.log('idk', idk)
 
-    let orderHash = ZeroEx.getOrderHashHex(order)
-    console.log('HASH', orderHash)
-    return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
-      const signedOrder = {
-        ...order,
-        ecSignature
-      }
-      // console.log(signedOrder)
-      // commit('ADD_ORDER', signedOrder)
-      return axios.post('//api.0xchange.me/order/new', signedOrder).then((results) => {
-        // console.log(results)
-        dispatch('pageServer')
-        dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
+        //   return idk
+        // })
+      }).catch((error) => {
+        dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
+        console.error(error)
       })
-      // return signedOrder
-      // return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
-      //   console.log('idk', idk)
-
-      //   return idk
-      // })
-    }).catch((error) => {
+    } catch (error) {
       dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
       console.error(error)
-    })
+    }
   },
   submitToken ({commit, dispatch}, token) {
     axios.post('//api.0xchange.me/token/new', token).then((results) => {
