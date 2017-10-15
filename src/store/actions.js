@@ -253,12 +253,12 @@ export default {
       //     return ((s.toUpperCase() === s) && s.length < 5)
       //   }
       // })
-      // const mappedData = filteredData.map((coin) => {
-      //   const newCoin = coin
-      //   newCoin.address = newCoin.address.toLowerCase()
-      //   return newCoin
-      // })
-      commit('ADD_COINLIST', results.data)
+      const mappedData = results.data.map((coin) => {
+        const newCoin = coin
+        newCoin.address = newCoin.address.toLowerCase()
+        return newCoin
+      })
+      commit('ADD_COINLIST', mappedData)
       // console.log('orders---', getters.orders)
       const symbols = []
       getters.orders.forEach((order) => {
@@ -275,7 +275,7 @@ export default {
       dispatch('getRates', symbols)
       setInterval(() => {
         dispatch('getRates', symbols)
-      }, 5000)
+      }, 50000)
     })
   }
 }

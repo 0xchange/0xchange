@@ -74,12 +74,12 @@
         <td class="text-xs-right">{{ getMarketRate(props.item.makerTokenAddress) }}</td>
         <td :class="goodPrice(getMarketRate(props.item.makerTokenAddress), calculateOrderRates(props.item))" class="flare text-xs-right">{{ calculateOrderRates(props.item) }}</td>
         <td class="text-xs-right">{{ getTokenSymbol(props.item.makerTokenAddress) }}</td>
-        <td class="text-xs-right">{{ shorten(props.item.makerFee) }}</td>
+        <td class="text-xs-right">{{ shorten(props.item.makerFee) || 0 }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.makerTokenAddress, props.item.makerTokenAmount) }}</td>
 
 
         <td class="text-xs-right">{{ getTokenSymbol(props.item.takerTokenAddress) }}</td>
-        <td class="text-xs-right">{{ shorten(props.item.takerFee) }}</td>
+        <td class="text-xs-right">{{ shorten(props.item.takerFee) || 0 }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.takerTokenAddress, props.item.takerTokenAmount) }}</td>
         <td class="text-xs-right"><v-btn @click.native.stop="take(props.item)">Take</v-btn></td>
       </template>
