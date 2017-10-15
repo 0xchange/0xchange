@@ -22,6 +22,7 @@
                 <v-flex xs5>
                   <v-text-field
                   :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAmount > 0) || 'Amount can\'t be 0']"
+                  :readonly="!newOrder"
                   type="number" label="Make Amount" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" required v-model="tmpOrder.makerTokenAmount"></v-text-field>
                 </v-flex>
 
@@ -103,7 +104,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" flat @click.native="close()">Close</v-btn>
-            <v-btn color="blue darken-1" flat @click.native="createOrder()">Save</v-btn>
+            <v-btn color="blue darken-1" flat @click.native="createOrder()">{{ newOrder ? 'Save' : 'Take'}}</v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
@@ -122,7 +123,7 @@ import _ from 'lodash'
 export default {
 
   name: 'Order',
-  props: ['order', 'rawOrder'],
+  props: ['order', 'rawOrder', 'newOrder'],
   data () {
     return {
       dialog: false,
@@ -172,7 +173,7 @@ export default {
     this.setOrder()
   },
   methods: {
-    ...mapActions(['submitOrder']),
+    ...mapActions(['submitOrder', 'fillOrder']),
     convert (address, amount) {
       const allRates = this.rates[this.getTokenSymbol(address)]
       if (!allRates) return ''
@@ -195,15 +196,26 @@ export default {
     createOrder () {
       if (this.$refs.form.validate()) {
         this.tmpOrder.expirationUnixTimestampSec = new BN(moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz').format('X'))
-        this.tmpOrder.makerTokenAddress = this.tmpOrder.makerTokenAddress.toLowerCase()
-        this.tmpOrder.takerTokenAddress = this.tmpOrder.takerTokenAddress.toLowerCase()
+        delete (this.tmpOrder.date)
+        delete (this.tmpOrder.time)
+        this.tmpOrder.makerTokenAddress = this.tmpOrder.makerTokenAddress
+        this.tmpOrder.takerTokenAddress = this.tmpOrder.takerTokenAddress
         this.tmpOrder.makerFee = new BN(this.tmpOrder.makerFee)
         this.tmpOrder.takerFee = new BN(this.tmpOrder.takerFee)
         this.tmpOrder.makerTokenAmount = new BN(this.tmpOrder.makerTokenAmount)
         this.tmpOrder.takerTokenAmount = new BN(this.tmpOrder.takerTokenAmount)
-        this.submitOrder(this.tmpOrder).then(() => {
-          this.close()
-        })
+        if (!this.newOrder) {
+          this.tmpOrder.taker = this.address
+          this.tmpOrder.raw = this.order
+          this.tmpOrder.raw.taker = this.address
+          this.fillOrder(this.tmpOrder).then(() => {
+            this.close()
+          })
+        } else {
+          this.submitOrder(this.tmpOrder).then(() => {
+            this.close()
+          })
+        }
       }
     },
     close () {
