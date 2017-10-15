@@ -1,7 +1,7 @@
 import ProviderEngine from 'web3-provider-engine'
 import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
-// import axios from 'axios'
+import axios from 'axios'
 // import jsonpAdapter from 'axios-jsonp'
 import BN from 'bignumber.js'
 import { ZeroEx } from '0x.js'
@@ -71,24 +71,59 @@ export default {
       commit('SET_ADDRESSES', addresses)
     })
   },
+  addTokenAddress ({commit}, address) {
+    commit('ADD_TOKENS', [{address, name: null, symbol: null}])
+  },
+  setPagination ({commit}, pagination) {
+    commit('SET_PAGINATION', pagination)
+  },
   submitOrder ({commit, state, dispatch}, order) {
-    const orderHash = ZeroEx.getOrderHashHex(order)
+    console.log('hier?')
+    console.log(order)
+
+    if (typeof order === 'string') order = JSON.parse(order)
+    // {
+    //   try {
+    //     ZeroEx.isValidSignature(order)
+    //   } catch (error) {
+    //     console.error(error)
+    //     dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
+    //   }
+    // }
+
+    let orderHash = ZeroEx.getOrderHashHex(order)
     return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
       const signedOrder = {
         ...order,
         ecSignature
       }
       console.log(signedOrder)
-      dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
-      commit('ADD_ORDER', signedOrder)
-      return signedOrder
+      // commit('ADD_ORDER', signedOrder)
+      return axios.post('http://138.197.172.238/post/order', signedOrder).then((results) => {
+        console.log(results)
+        dispatch('pageServer')
+        dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
+      })
+      // return signedOrder
       // return zeroEx.exchange.validateOrderFillableOrThrowAsync(signedOrder).then((idk) => {
       //   console.log('idk', idk)
 
       //   return idk
       // })
     }).catch((error) => {
+      dispatch('addNotification', {type: 'error', 'text': 'Order failed, check log for details'})
       console.error(error)
+    })
+  },
+  pageServer ({commit, state, dispatch}) {
+    axios.get('http://138.197.172.238/get', {
+      sortBy: state.pagination.sortBy,
+      asc: state.pagination.descending,
+      limit: state.pagination.rowsPerPage,
+      page: state.pagination.page
+    }).then((results) => {
+      console.log(results)
+      commit('ADD_ORDERS', results.data)
     })
   }
 }

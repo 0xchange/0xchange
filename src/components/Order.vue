@@ -7,13 +7,13 @@
             <v-container grid-list-md>
               <v-layout wrap >
 
-                <v-flex xs5 v-if="order && (!order.args.makerToken || !order.args.takerToken)"  >
+                <v-flex xs5 v-if="order && (!order.makertokenaddress || !order.takertokenaddress)"  >
                   <v-text-field 
                   :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAddress.length > 0) || 'This field is required']"
                   required  label="Maker Token Address" required v-model="tmpOrder.makerTokenAddress"></v-text-field>
                 </v-flex>
 
-                <v-flex xs5 v-if="order && (!order.args.takerToken || !order.args.makerToken)" offset-xs1>
+                <v-flex xs5 v-if="order && (!order.takertokenaddress || !order.makertokenaddress)" offset-xs1>
                   <v-text-field 
                   :rules="[() => (tmpOrder.takerTokenAddress && tmpOrder.takerTokenAddress.length > 0) || 'This field is required']"
                    required label="Taker Token Address" required v-model="tmpOrder.takerTokenAddress"></v-text-field>
@@ -35,11 +35,11 @@
 
 
                 <v-flex xs5>
-                  <v-text-field readonly :label="'Make Amount in ' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
+                  <v-text-field readonly :label="'Make Amount' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
                 </v-flex>
 
                 <v-flex xs5 offset-xs1>
-                  <v-text-field readonly :label="'Make Amount in ' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
+                  <v-text-field readonly :label="'Make Amount' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
                 </v-flex>
 
 
@@ -198,8 +198,8 @@ export default {
       this.tmpOrder.maker = this.address
       this.tmpOrder.taker = this.$store.state.NULL_ADDRESS
       this.tmpOrder.feeRecipient = this.$store.state.NULL_ADDRESS
-      this.tmpOrder.makerTokenAddress = this.order.args.makerToken
-      this.tmpOrder.takerTokenAddress = this.order.args.takerToken
+      this.tmpOrder.makerTokenAddress = this.order.makertokenaddress
+      this.tmpOrder.takerTokenAddress = this.order.takertokenaddress
       this.tmpOrder.exchangeContractAddress = this.$store.state.EXCHANGE_ADDRESS
       this.tmpOrder.salt = ZeroEx.generatePseudoRandomSalt()
       this.tmpOrder.makerFee = 0

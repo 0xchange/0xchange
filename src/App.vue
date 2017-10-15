@@ -22,9 +22,9 @@
       </v-list>
     </v-navigation-drawer>
     <v-toolbar fixed app >
-      <v-toolbar-side-icon @click.stop="drawer = !drawer" light></v-toolbar-side-icon>
-      
-      <v-toolbar-title v-text="title"></v-toolbar-title>
+<!--       <v-toolbar-side-icon @click.stop="drawer = !drawer" light></v-toolbar-side-icon> -->
+      <v-icon large >record_voice_over</v-icon>
+      <v-toolbar-title >0xchange.me</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
     <main>
@@ -46,10 +46,6 @@
     </main>
    
 
-
-    <v-footer app>
-      <span>&copy; 2017</span>
-    </v-footer>
   </v-app>
 </template>
 
