@@ -48,7 +48,7 @@ export default {
     state.coinList.forEach((coin) => {
       addresses[coin.address] = coin
     })
-    console.log('addresses', addresses)
+    // console.log('addresses', addresses)
     return addresses
   },
   totalItems (state) {

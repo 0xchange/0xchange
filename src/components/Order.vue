@@ -194,6 +194,14 @@ export default {
           this.tmpOrder.taker = this.address
           this.tmpOrder.raw = this.order
           this.tmpOrder.raw.taker = this.address
+
+          this.tmpOrder.raw.salt = new BN(this.tmpOrder.raw.salt)
+
+          this.tmpOrder.raw.makerFee = new BN(this.tmpOrder.raw.makerFee)
+          this.tmpOrder.raw.takerFee = new BN(this.tmpOrder.raw.takerFee)
+          this.tmpOrder.raw.makerTokenAmount = new BN(this.tmpOrder.raw.makerTokenAmount)
+          this.tmpOrder.raw.takerTokenAmount = new BN(this.tmpOrder.raw.takerTokenAmount)
+
           this.fillOrder(this.tmpOrder).then(() => {
             this.close()
           })
