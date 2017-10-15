@@ -50,7 +50,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapActions } from 'vuex'
   import Notifications from '@/components/Notifications'
   export default {
     components: {Notifications},
@@ -65,8 +65,14 @@
         title: '0xchange'
       }
     },
+    mounted () {
+      this.pageServer()
+    },
     computed: {
       ...mapGetters(['loading'])
+    },
+    methods: {
+      ...mapActions(['pageServer'])
     }
   }
 
