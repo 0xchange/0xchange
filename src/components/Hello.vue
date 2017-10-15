@@ -14,7 +14,7 @@
         v-model="makerAddress"
         :search-input.sync="searchMakerAddress"
         v-bind:items="selectTokens(false)">
-          <template slot="no-data">
+          <!-- <template slot="no-data">
             <v-layout>
               <v-flex>
                 <v-btn
@@ -26,7 +26,7 @@
                 </v-btn>
               </v-flex>
             </v-layout>
-          </template>
+          </template> -->
         </v-select>
       </v-flex>
       <v-flex xs12 sm4  offset-sm4>
@@ -51,7 +51,7 @@
 
       <v-flex xs12 sm2 class='text-xs-center mt-5'>
         <v-btn @click="makeOrder()">Make Order</v-btn>
-        <v-btn @click="makeRawOrder()">Add Raw Order</v-btn>
+        <v-btn @click="makeToken()">Add New Token</v-btn>
       </v-flex>
 
 
@@ -213,7 +213,7 @@ export default {
     },
     close () {
       this.order = null
-      this.rawOrder = null
+      this.rawOrder = false
     },
     makeOrder () {
       this.newOrder = true
@@ -222,7 +222,7 @@ export default {
         takerTokenAddress: this.takerAddress
       }
     },
-    makeRawOrder () {
+    makeToken () {
       this.rawOrder = true
     },
     take (order, e) {

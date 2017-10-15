@@ -190,6 +190,14 @@ export default {
       console.error(error)
     })
   },
+  submitToken ({commit, dispatch}, token) {
+    axios.post('//138.197.172.238/token/new', token).then((results) => {
+      console.log(results)
+      dispatch('getTokens')
+    }).catch((error) => {
+      console.error(error)
+    })
+  },
   pageServer ({commit, state, dispatch, getters}) {
     console.log('page server')
     axios.get('//138.197.172.238/order').then((results) => {
@@ -213,6 +221,9 @@ export default {
     //     console.error(error)
     //   })
     // })
+    dispatch('getTokens')
+  },
+  getTokens ({commit}) {
     axios.get('//138.197.172.238/token')
     .then((results) => {
       console.log(results.data)
