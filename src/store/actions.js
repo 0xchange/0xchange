@@ -45,9 +45,9 @@ export default {
     const symbolsString = symbols.join()
     const priceSymbolsString = priceSymbols.join()
     const testString = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString
-    console.log(testString)
+    // console.log(testString)
     axios.get(testString).then((results) => {
-      console.log('THE RATES HAVE BEEN UPDATED', results.data)
+      // console.log('THE RATES HAVE BEEN UPDATED', results.data)
       commit('UPDATE_RATES', results.data)
       const socketSymbols = getters.coinList.map((coin) => {
         return coin.symbol
@@ -68,7 +68,7 @@ export default {
         subscription.push(str)
       })
     })
-    console.log(JSON.stringify(subscription))
+    // console.log(JSON.stringify(subscription))
 
     var socket = io.connect('https://streamer.cryptocompare.com/')
 
@@ -166,7 +166,7 @@ export default {
     })
   },
   submitOrder ({commit, state, dispatch}, order) {
-    console.log('hier?')
+    // console.log('hier?')
     console.log(order)
 
     if (typeof order === 'string') order = JSON.parse(order)
@@ -180,16 +180,16 @@ export default {
     // }
 
     let orderHash = ZeroEx.getOrderHashHex(order)
-    console.log(orderHash)
+    // console.log(orderHash)
     return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
       const signedOrder = {
         ...order,
         ecSignature
       }
-      console.log(signedOrder)
+      // console.log(signedOrder)
       // commit('ADD_ORDER', signedOrder)
       return axios.post('//api.0xchange.me/order/new', signedOrder).then((results) => {
-        console.log(results)
+        // console.log(results)
         dispatch('pageServer')
         dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
       })
@@ -215,7 +215,7 @@ export default {
   pageServer ({commit, state, dispatch, getters}) {
     console.log('page server')
     axios.get('//api.0xchange.me/order').then((results) => {
-      console.log(results)
+      // console.log(results)
       commit('ADD_ORDERS', results.data)
     }).catch((error) => {
       console.error(error)
@@ -240,7 +240,7 @@ export default {
   getTokens ({commit, getters, dispatch}) {
     axios.get('//api.0xchange.me/token')
     .then((results) => {
-      console.log(results.data)
+      // console.log(results.data)
       const filteredData = results.data.filter((coin) => {
         const s = coin.symbol
         if (/[^a-zA-Z0-9]/.test(s)) {
@@ -255,11 +255,11 @@ export default {
         return newCoin
       })
       commit('ADD_COINLIST', mappedData)
-      console.log('orders---', getters.orders)
+      // console.log('orders---', getters.orders)
       const symbols = []
       getters.orders.forEach((order) => {
-        console.log('makerAddress', order.makerTokenAddress)
-        console.log('AddressList', getters.addressList)
+        // console.log('makerAddress', order.makerTokenAddress)
+        // console.log('AddressList', getters.addressList)
         let makerSymbol = getters.addressList[order.makerTokenAddress].symbol
         let takerSymbol = getters.addressList[order.takerTokenAddress].symbol
         makerSymbol = (makerSymbol === 'WETH') ? 'ETH' : makerSymbol

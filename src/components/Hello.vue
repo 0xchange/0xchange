@@ -258,7 +258,7 @@ export default {
       return foo
     },
     shorten (str) {
-      return str.slice(0, 8)
+      return str.length > 8 && str.slice(0, 8)
     },
     getToken (address) {
       let t = this.tokens.find((token) => {
