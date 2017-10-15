@@ -176,7 +176,7 @@ export default {
     ...mapActions(['submitOrder', 'fillOrder']),
     convert (address, amount) {
       const allRates = this.rates[this.getTokenSymbol(address)]
-      if (!allRates || !allRates['USD']) return 'N/A'
+      if (!allRates || !allRates['USD']) return 0
       else return allRates['USD'].toFixed(3)
     },
     orderPrice (makerTokenAddress, makerTokenAmount, takerTokenAddress, takerTokenAmount) {
@@ -185,10 +185,10 @@ export default {
 
       // console.log(this.rates)
       const takerOrderRates = this.rates[takerTokenSymbol]
-      if (!takerOrderRates) return 'N/A'
+      if (!takerOrderRates) return 0
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
-      if (!makerOrderRates || !makerOrderRates['USD']) return 'N/A'
-      return (makerOrderRates && makerOrderRates['USD'].toFixed(3)) || 'N/A'
+      if (!makerOrderRates || !makerOrderRates['USD']) return 0
+      return (makerOrderRates && makerOrderRates['USD'].toFixed(3)) || 0
     },
     getTokenSymbol (tokenAddress) {
       let t = this.tokens.find((token) => token.address === tokenAddress)
