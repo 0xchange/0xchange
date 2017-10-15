@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "0x.js": "^0.21.4",
+    "abi-decoder": "^1.0.9",
     "axios": "^0.16.2",
     "axios-jsonp": "^1.0.1",
     "bignumber": "^1.1.0",
