@@ -89,7 +89,7 @@ export default {
     if (window.web3) {
       providerEngine = window.web3.currentProvider
     } else {
-      const ROPSTEN_ENDPOINT = 'https://ropsten.infura.io'
+      const ROPSTEN_ENDPOINT = 'https://infura.io'
 
       providerEngine = new ProviderEngine()
       providerEngine.addProvider(new FilterSubprovider())
@@ -106,9 +106,13 @@ export default {
     //   commit('ADD_LOGS', logs)
     //   console.log(logs[0])
     //   let data = logs[0].data
-    //   console.log(data)
+    //   // console.log(data)
     //   console.log(abi.abi)
-    //   Web3EthAbi.decodeParameters(abi.abi, data).then((results) => {
+    //   abi = abi.abi.map((a) => {
+    //     console.log(a)
+    //   })
+
+    //   Web3EthAbi.decodeParameters(abi, data).then((results) => {
     //     console.log(results)
     //   })
 
@@ -174,7 +178,7 @@ export default {
       }
       console.log(signedOrder)
       // commit('ADD_ORDER', signedOrder)
-      return axios.post('//138.197.172.238/order/new', signedOrder).then((results) => {
+      return axios.post('//api.0xchange.me/order/new', signedOrder).then((results) => {
         console.log(results)
         dispatch('pageServer')
         dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
@@ -191,7 +195,7 @@ export default {
     })
   },
   submitToken ({commit, dispatch}, token) {
-    axios.post('//138.197.172.238/token/new', token).then((results) => {
+    axios.post('//api.0xchange.me/token/new', token).then((results) => {
       console.log(results)
       dispatch('getTokens')
     }).catch((error) => {
@@ -200,7 +204,7 @@ export default {
   },
   pageServer ({commit, state, dispatch, getters}) {
     console.log('page server')
-    axios.get('//138.197.172.238/order').then((results) => {
+    axios.get('//api.0xchange.me/order').then((results) => {
       console.log(results)
       commit('ADD_ORDERS', results.data)
     }).catch((error) => {
@@ -214,7 +218,7 @@ export default {
     //     name: coin.name,
     //     decimals: parseInt(coin.decimals)
     //   }
-    //   axios.post('http://138.197.172.238/token/new', newCoin).then((results) => {
+    //   axios.post('http://api.0xchange.me/token/new', newCoin).then((results) => {
     //     console.log(results)
     //     commit('ADD_ORDERS', results.data)
     //   }).catch((error) => {
@@ -224,7 +228,7 @@ export default {
     dispatch('getTokens')
   },
   getTokens ({commit}) {
-    axios.get('//138.197.172.238/token')
+    axios.get('//api.0xchange.me/token')
     .then((results) => {
       console.log(results.data)
       commit('ADD_COINLIST', results.data)
