@@ -204,12 +204,12 @@ export default {
       const takerOrderRates = this.rates[takerTokenSymbol]
       if (!takerOrderRates) return '??'
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
-      return (makerOrderRates && makerOrderRates[this.desiredCurrency]) || ''
+      return (makerOrderRates && makerOrderRates[this.desiredCurrency].toFixed(3)) || ''
     },
     getMarketRate (address) {
       const symbol = this.getTokenSymbol(address)
       const marketRates = this.rates[symbol]
-      return (marketRates && marketRates[this.desiredCurrency]) || ''
+      return (marketRates && marketRates[this.desiredCurrency].toFixed(3)) || ''
     },
     close () {
       this.order = null
