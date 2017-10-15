@@ -34,11 +34,11 @@
 
 
                 <v-flex xs5>
-                  <v-text-field readonly :label="'Make Amount' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
+                  <v-text-field readonly :label="'Market Price (SAI)' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
                 </v-flex>
 
                 <v-flex xs5 offset-xs1>
-                  <v-text-field readonly :label="'Make Amount' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(conversion)" :value="convert(tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
+                  <v-text-field readonly :label="'Asking Price (SAI)' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="orderPrice(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount, tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
                 </v-flex>
 
 
@@ -118,6 +118,8 @@ import moment from 'moment'
 import BN from 'bignumber.js'
 import { ZeroEx } from '0x.js'
 import {mapGetters, mapActions} from 'vuex'
+import _ from 'lodash'
+
 export default {
 
   name: 'Order',
@@ -159,7 +161,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['address', 'tokens', 'conversion']),
+    ...mapGetters(['address', 'tokens', 'conversion', 'rates']),
     shouldShow () {
       return this.order && (!this.order.makerTokenAddress || !this.order.takerTokenAddress)
     },
@@ -173,7 +175,19 @@ export default {
   methods: {
     ...mapActions(['submitOrder', 'fillOrder']),
     convert (address, amount) {
-      return amount && amount / 2
+      const allRates = this.rates[this.getTokenSymbol(address)]
+      if (!allRates) return ''
+      else return allRates['USD'].toFixed(3)
+    },
+    orderPrice (makerTokenAddress, makerTokenAmount, takerTokenAddress, takerTokenAmount) {
+      const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
+      const ratio = takerTokenAmount / makerTokenAmount
+
+      // console.log(this.rates)
+      const takerOrderRates = this.rates[takerTokenSymbol]
+      if (!takerOrderRates) return '??'
+      const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
+      return (makerOrderRates && makerOrderRates['USD'].toFixed(3)) || ''
     },
     getTokenSymbol (tokenAddress) {
       let t = this.tokens.find((token) => token.address === tokenAddress)
