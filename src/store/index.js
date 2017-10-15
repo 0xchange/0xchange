@@ -25,8 +25,9 @@ const state = {
   rates: {},
   addresses: [],
   conversion: 'WETH',
-  coinList,
-  // coinList: [],
+  // coinList,
+  cryptoList: coinList.Data,
+  coinList: [],
   orders: [],
   totalItems: 0
 }

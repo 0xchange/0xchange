@@ -4,7 +4,7 @@
     <v-btn @click="deposit(eth)">deposit</v-btn>
     <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
-      <v-flex xs12 md4>
+      <v-flex xs12 sm4>
         <v-select
         clearable
         :editable="false"
@@ -65,7 +65,6 @@
     </v-layout>
 
     <v-data-table
-      :total-items="totalItems"
       v-bind:headers="headers"
       :items="orders"
       class="elevation-1"
@@ -208,9 +207,7 @@ export default {
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
       return makerOrderRates[this.desiredCurrency]
     },
-    ...mapActions(['connect', 'withdraw', 'deposit']),
     close () {
-      console.log('close')
       this.order = null
       this.rawOrder = null
     },

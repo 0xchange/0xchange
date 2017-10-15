@@ -18,12 +18,19 @@ export default {
   methods: {
     random () {
       return Math.floor(Math.random() * 7) + 1
+    },
+    getSymbol (tokenAddress) {
+      let token = this.tokens.find((token) => {
+        return token.address === tokenAddress
+      })
+      return token && token.symbol
     }
   },
   computed: {
-    ...mapGetters(['tokens', 'addressList']),
+    ...mapGetters(['tokens', 'addressList', 'cryptoList']),
     bgImage () {
-      let url = !this.addressList[this.token] ? '/static/emoji_' + this.random() + '.png' : 'https://cryptocompare.com/' + this.addressList[this.token].ImageUrl
+      let symbol = this.getSymbol(this.token)
+      let url = !this.token || !symbol || !this.cryptoList[symbol] ? '/static/emoji_' + this.random() + '.png' : 'https://cryptocompare.com/' + this.cryptoList[symbol].ImageUrl
       return 'background-image: url("' + url + '")'
     }
   }

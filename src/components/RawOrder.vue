@@ -50,7 +50,6 @@ export default {
       }
     },
     dialog () {
-      console.log('dialog changed')
       if (!this.dialog) this.close()
     }
   },
