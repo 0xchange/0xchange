@@ -13,7 +13,7 @@ export default {
   },
   tokens: (state) => {
     let tokens = []
-    state.tokens.forEach((token) => {
+    state.coinList.forEach((token) => {
       if (tokens.findIndex((t) => t.address === token.address) < 0) {
         tokens.push(token)
       }
