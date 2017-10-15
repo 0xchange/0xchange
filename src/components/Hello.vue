@@ -120,11 +120,13 @@ export default {
       headers: [
         {
           text: 'Market Price (SAI)',
-          value: 'marketPrice'
+          value: 'marketPrice',
+          sortable: false
         },
         {
           text: 'Asking Price (SAI)',
-          value: 'askingPrice'
+          value: 'askingPrice',
+          sortable: false
         },
         {
           text: 'Maker Token',
