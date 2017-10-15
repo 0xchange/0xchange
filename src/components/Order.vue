@@ -32,14 +32,14 @@
                   type="number" label="Take Amount" :suffix="getTokenSymbol(tmpOrder.takerTokenAddress)" required v-model="tmpOrder.takerTokenAmount"></v-text-field>
                 </v-flex>
 
-
+<!-- 
                 <v-flex xs5>
                   <v-text-field readonly :label="'Market Price (SAI)' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
                 </v-flex>
 
                 <v-flex xs5 offset-xs1>
                   <v-text-field readonly :label="'Asking Price (SAI)' + getTokenSymbol(conversion)" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="orderPrice(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount, tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
-                </v-flex>
+                </v-flex> -->
 
 
 
@@ -195,32 +195,37 @@ export default {
     },
     createOrder () {
       if (this.$refs.form.validate()) {
-        this.tmpOrder.expirationUnixTimestampSec = new BN(moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz').format('X'))
-        delete (this.tmpOrder.date)
-        delete (this.tmpOrder.time)
-        this.tmpOrder.makerTokenAddress = this.tmpOrder.makerTokenAddress
-        this.tmpOrder.takerTokenAddress = this.tmpOrder.takerTokenAddress
-        this.tmpOrder.makerFee = new BN(this.tmpOrder.makerFee)
-        this.tmpOrder.takerFee = new BN(this.tmpOrder.takerFee)
-        this.tmpOrder.makerTokenAmount = new BN(this.tmpOrder.makerTokenAmount)
-        this.tmpOrder.takerTokenAmount = new BN(this.tmpOrder.takerTokenAmount)
+        let raw = JSON.parse(JSON.stringify(this.tmpOrder))
+        console.log(raw.date)
+        console.log(raw.time)
+        console.log(moment(raw.date + ' ' + raw.time, 'YYYY-MM-DD HH:mz').format('X'))
+        raw.expirationUnixTimestampSec = new BN(moment(raw.date + ' ' + raw.time, 'YYYY-MM-DD HH:mz').format('X'))
+        console.log(raw.expirationUnixTimestampSec)
+        raw.makerTokenAddress = raw.makerTokenAddress
+        raw.takerTokenAddress = raw.takerTokenAddress
+        raw.makerFee = new BN(raw.makerFee)
+        raw.takerFee = new BN(raw.takerFee)
+        raw.makerTokenAmount = new BN(raw.makerTokenAmount)
+        raw.takerTokenAmount = new BN(raw.takerTokenAmount)
         if (!this.newOrder) {
-          this.tmpOrder.taker = this.address
-          this.tmpOrder.raw = this.order
-          this.tmpOrder.raw.taker = this.address
+          raw.expirationUnixTimestampSec = new BN(this.order.expirationUnixTimestampSec)
+          raw.salt = new BN(this.order.salt)
+          raw.ecSignature = this.order.ecSignature
+          raw.makerFee = new BN(this.order.makerFee)
+          raw.takerFee = new BN(this.order.takerFee)
+          raw.makerTokenAmount = new BN(this.order.makerTokenAmount)
+          raw.takerTokenAmount = new BN(this.order.takerTokenAmount)
 
-          this.tmpOrder.raw.salt = new BN(this.tmpOrder.raw.salt)
+          raw.takerAddress = this.address
 
-          this.tmpOrder.raw.makerFee = new BN(this.tmpOrder.raw.makerFee)
-          this.tmpOrder.raw.takerFee = new BN(this.tmpOrder.raw.takerFee)
-          this.tmpOrder.raw.makerTokenAmount = new BN(this.tmpOrder.raw.makerTokenAmount)
-          this.tmpOrder.raw.takerTokenAmount = new BN(this.tmpOrder.raw.takerTokenAmount)
-
-          this.fillOrder(this.tmpOrder).then(() => {
+          console.log(raw)
+          console.log(this.order)
+          console.log(this.tmpOrder)
+          this.fillOrder({order: raw, amount: raw.takerTokenAmount}).then(() => {
             this.close()
           })
         } else {
-          this.submitOrder(this.tmpOrder).then(() => {
+          this.submitOrder(raw).then(() => {
             this.close()
           })
         }
@@ -231,21 +236,37 @@ export default {
     },
     setOrder () {
       if (!this.order) return
-      this.$refs.form.reset()
-      this.tmpOrder.maker = this.address
-      this.tmpOrder.taker = this.$store.state.NULL_ADDRESS
-      this.tmpOrder.feeRecipient = this.$store.state.NULL_ADDRESS
       this.tmpOrder.makerTokenAddress = this.order.makerTokenAddress
-      this.tmpOrder.takerTokenAddress = this.order.takerTokenAddress
-      this.tmpOrder.exchangeContractAddress = this.$store.state.EXCHANGE_ADDRESS
-      this.tmpOrder.salt = ZeroEx.generatePseudoRandomSalt()
-      this.tmpOrder.makerFee = 0
-      this.tmpOrder.takerFee = 0
       this.tmpOrder.makerTokenAmount = this.order.makerTokenAmount
       this.tmpOrder.takerTokenAmount = this.order.takerTokenAmount
-      // moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz')
-      this.tmpOrder.time = moment().add(1, 'hours').format('HH:mz')
-      this.tmpOrder.date = moment().add(1, 'days').format('YYYY-MM-DD')
+      this.tmpOrder.exchangeContractAddress = this.$store.state.EXCHANGE_ADDRESS
+
+      if (this.newOrder) {
+        this.$refs.form.reset()
+        this.tmpOrder.maker = this.address
+        this.tmpOrder.taker = this.$store.state.NULL_ADDRESS
+        this.tmpOrder.feeRecipient = this.$store.state.NULL_ADDRESS
+
+        this.tmpOrder.takerTokenAddress = this.order.takerTokenAddress
+        this.tmpOrder.salt = ZeroEx.generatePseudoRandomSalt()
+        this.tmpOrder.makerFee = 0
+        this.tmpOrder.takerFee = 0
+        // moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz')
+        this.tmpOrder.time = moment().add(1, 'hours').format('HH:mz')
+        this.tmpOrder.date = moment().add(1, 'days').format('YYYY-MM-DD')
+      } else {
+        this.tmpOrder.maker = this.order.maker
+        this.tmpOrder.taker = this.order.taker
+        this.tmpOrder.feeRecipient = this.order.feeRecipient
+        this.tmpOrder.takerTokenAddress = this.address
+        this.tmpOrder.salt = this.order.salt
+        this.tmpOrder.makerFee = this.order.makerFee
+        this.tmpOrder.takerFee = this.order.takerFee
+
+        this.tmpOrder.time = moment(this.order.expirationUnixTimestampSec, 'X').format('HH:mz')
+        this.tmpOrder.date = moment(this.order.expirationUnixTimestampSec, 'X').format('YYYY-MM-DD')
+      }
+
       // ##/##/#### ##:##
     }
   }
