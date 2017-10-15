@@ -196,17 +196,24 @@ export default {
     }).catch((error) => {
       console.error(error)
     })
+    // getters.coinList.forEach((coin) => {
+    //   const newCoin = {
+    //     address: coin.address,
+    //     symbol: coin.symbol,
+    //     name: coin.name,
+    //     decimals: parseInt(coin.decimals)
+    //   }
+    //   axios.post('http://138.197.172.238/token/new', newCoin).then((results) => {
+    //     console.log(results)
+    //     commit('ADD_ORDERS', results.data)
+    //   }).catch((error) => {
+    //     console.error(error)
+    //   })
+    // })
     axios.get('http://138.197.172.238/token')
     .then((results) => {
-      console.log(results.data)
+      console.log(JSON.stringify(results.data))
       commit('ADD_COINLIST', results.data)
     })
-
-    // axios.post('http://138.197.172.238/token/new').then((results) => {
-    //   console.log(results)
-    //   commit('ADD_ORDERS', results.data)
-    // }).catch((error) => {
-    //   console.error(error)
-    // })
   }
 }
