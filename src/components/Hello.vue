@@ -178,11 +178,7 @@ export default {
       // alert(address)
       // Perform your AJAX call to backend here :D
     },
-    isEmpty () {
-      console.log('isEmpty')
-    },
     close () {
-      console.log('close')
       this.order = null
       this.rawOrder = null
     },

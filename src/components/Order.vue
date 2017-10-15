@@ -154,7 +154,6 @@ export default {
       }
     },
     dialog () {
-      console.log('dialog changed')
       if (!this.dialog) this.close()
     }
   },
@@ -173,7 +172,7 @@ export default {
   methods: {
     ...mapActions(['submitOrder']),
     convert (address, amount) {
-      return amount / 2
+      return amount && amount / 2
     },
     getTokenSymbol (tokenAddress) {
       let t = this.tokens.find((token) => token.address === tokenAddress)
@@ -196,6 +195,7 @@ export default {
     },
     setOrder () {
       if (!this.order) return
+      this.$refs.form.reset()
       this.tmpOrder.maker = this.address
       this.tmpOrder.taker = this.$store.state.NULL_ADDRESS
       this.tmpOrder.feeRecipient = this.$store.state.NULL_ADDRESS
@@ -205,8 +205,8 @@ export default {
       this.tmpOrder.salt = ZeroEx.generatePseudoRandomSalt()
       this.tmpOrder.makerFee = 0
       this.tmpOrder.takerFee = 0
-      this.tmpOrder.makerTokenAmount = 0
-      this.tmpOrder.takerTokenAmount = 0
+      this.tmpOrder.makerTokenAmount = this.order.makerTokenAmount
+      this.tmpOrder.takerTokenAmount = this.order.takerTokenAmount
       // moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz')
       this.tmpOrder.time = moment().add(1, 'hours').format('HH:mz')
       this.tmpOrder.date = moment().add(1, 'days').format('YYYY-MM-DD')
