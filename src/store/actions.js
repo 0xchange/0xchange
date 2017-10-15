@@ -124,6 +124,7 @@ export default {
     //   //   console.log(result)
     //   // })
     // })
+
     // zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
     //   console.log('tokens returned')
     //   commit('ADD_TOKENS', tokens)
@@ -154,6 +155,12 @@ export default {
   },
   setPagination ({commit}, pagination) {
     commit('SET_PAGINATION', pagination)
+  },
+  fillOrder ({commit}, order) {
+    console.log(order)
+    zeroEx.exchange.fillOrderAsync(order.raw, order.takerTokenAmount, false, order.raw.taker).then((result) => {
+      console.log(result)
+    })
   },
   submitOrder ({commit, state, dispatch}, order) {
     console.log('hier?')
