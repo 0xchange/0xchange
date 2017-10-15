@@ -12,13 +12,7 @@ export default {
     return state.zeroEx
   },
   tokens: (state) => {
-    let tokens = []
-    state.coinList.forEach((token) => {
-      if (tokens.findIndex((t) => t.address === token.address) < 0) {
-        tokens.push(token)
-      }
-    })
-    return tokens.sort((a, b) => {
+    return state.coinList.sort((a, b) => {
       return a.name - b.name
     })
   },
