@@ -4,8 +4,8 @@
     <v-btn @click="deposit(eth)">deposit</v-btn>
     <input placeholder="Gwei" v-model="eth"> -->
     <v-layout row wrap>
-      <v-flex xs12 sm4>
-        <v-select 
+      <v-flex xs12 md4>
+        <v-select
         clearable
         :editable="false"
         @click="isEmpty()"
@@ -17,8 +17,8 @@
           <template slot="no-data">
             <v-layout>
               <v-flex>
-                <v-btn 
-                 block 
+                <v-btn
+                 block
                  flat
                  color="success"
                  @click="checkBeforeAdding(searchMakerAddress)">
@@ -30,7 +30,7 @@
         </v-select>
       </v-flex>
       <v-flex xs12 sm4  offset-sm4>
-        <v-select 
+        <v-select
         clearable
         :editable="false"
         @click="isEmpty()"
@@ -39,14 +39,14 @@
         v-model="takerAddress"
         v-bind:items="selectTokens(true)">
         </v-select>
-      </v-flex> 
+      </v-flex>
     </v-layout>
 
 
     <v-layout row wrap>
       <v-flex xs12 sm4 offset-sm1>
-       <token :token="getTokenSymbol(makerAddress)"></token>
-      </v-flex> 
+<!--        <token :token="getTokenSymbol(makerAddress)"></token>
+ -->      </v-flex>
 
 
       <v-flex xs12 sm2 class='text-xs-center mt-5'>
@@ -56,8 +56,8 @@
 
 
       <v-flex xs12  sm4 >
-        <token :token="getTokenSymbol(takerAddress)"></token>
-      </v-flex>
+<!--         <token :token="getTokenSymbol(takerAddress)"></token>
+ -->      </v-flex>
     </v-layout>
 
 
@@ -65,12 +65,13 @@
     </v-layout>
 
     <v-data-table
-      :total-items="totalItems"
       v-bind:headers="headers"
       :items="orders"
       class="elevation-1"
     >
       <template slot="items" scope="props">
+      <!-- :class="goodPrice(props.item.args)" -->
+        <td class="text-xs-right">{{ calculateOrderRates(props.item) }}</td>
         <td class="text-xs-right">{{ getTokenSymbol(props.item.makerTokenAddress) }}</td>
         <td class="text-xs-right">{{ shorten(props.item.makerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.makerTokenAddress, props.item.makerTokenAmount) }}</td>
@@ -79,7 +80,6 @@
         <td class="text-xs-right">{{ getTokenSymbol(props.item.takerTokenAddress) }}</td>
         <td class="text-xs-right">{{ shorten(props.item.takerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.takerTokenAddress, props.item.takerTokenAmount) }}</td>
-
         <td class="text-xs-right"><v-btn @click.native.stop="take(props.item)">Take</v-btn></td>
       </template>
     </v-data-table>
@@ -92,7 +92,8 @@
 import Token from '@/components/Token'
 import RawOrder from '@/components/RawOrder'
 import Order from '@/components/Order'
-import axios from 'axios'
+// import _ from 'lodash'
+// import axios from 'axios'
 
 // import { ZeroEx } from '0x.js'
 // import BN from 'bignumber.js'
@@ -104,6 +105,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      desiredCurrency: 'USD',
       pagination: { sortBy: 'makerFee', page: 1, rowsPerPage: 5, descending: false, totalItems: 0 },
       takerAddress: null,
       makerAddress: null,
@@ -115,6 +117,10 @@ export default {
       rawOrder: null,
       order: null,
       headers: [
+        {
+          text: 'price ($SAI)',
+          value: 'args.price'
+        },
         {
           text: 'Maker Token',
           value: 'makerTokenAddress'
@@ -158,7 +164,7 @@ export default {
     this.connect()
   },
   computed: {
-    ...mapGetters(['tokens', 'totalItems', 'orders']),
+    ...mapGetters(['tokens', 'totalItems', 'orders', 'rates', 'addressList'])
     // logsFiltered () {
     //   return this.logs.filter((con) => {
     //     return (this.takerAddress && !this.makerAddress && con.takerTokenAddress === this.takerAddress) ||
@@ -167,16 +173,40 @@ export default {
     //     (this.takerAddress && con.takerTokenAddress === this.takerAddress && this.makerAddress && con.makerTokenAddress === this.makerAddress)
     //   })
     // },
-    symbolsString () {
-      return this.tokens.map((token) => token.symbol).join()
-    }
   },
   methods: {
+    goodPrice (order) {
+      let ourPrice = this.calculateOrderRates(order)
+      let theirPrice = this.rates[this.getTokenSymbol(order.takerToken)]
+      return {
+        goodPrice: ourPrice < theirPrice,
+        badPrice: ourPrice > theirPrice
+      }
+    },
     ...mapActions(['connect', 'withdraw', 'deposit', 'pageServer', 'setPagination', 'addTokenAddress']),
     checkBeforeAdding (address) {
       this.addTokenAddress(address)
       // alert(address)
       // Perform your AJAX call to backend here :D
+    },
+    isEmpty () {
+      console.log('isEmpty')
+    },
+    calculateOrderRates (order) {
+      return ''
+      // console.log('order!', order)
+      // const {makerTokenAddress, takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
+      // const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
+      // const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
+      // const ratio = takerTokenAmount.toNumber() / makerTokenAmount.toNumber()
+      // console.log('ratio: ' + ratio)
+      // console.log('takerToken', takerTokenSymbol)
+      // console.log('toksymbol', makerTokenSymbol)
+      // // console.log(this.rates)
+      // const takerOrderRates = this.rates[takerTokenSymbol]
+      // if (!takerOrderRates) return ''
+      // const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
+      // return makerOrderRates[this.desiredCurrency]
     },
     close () {
       this.order = null
@@ -223,11 +253,6 @@ export default {
     shorten (str) {
       return str.slice(0, 8)
     },
-    getExchange () {
-      axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + this.symbolsString + '&tsyms=USD,CAD').then((results) => {
-        this.exchangeResults = results.data
-      })
-    },
     getToken (address) {
       let t = this.tokens.find((token) => {
         return token.address === address
@@ -235,10 +260,19 @@ export default {
       return t && t.name
     },
     getTokenSymbol (address) {
-      let t = this.tokens.find((token) => {
-        return token.address === address
-      })
-      return t && t.symbol
+      // let t = this.tokens.find((token) => {
+      //   return token.address === address
+      // })
+      // if (!t) return ''
+      // const symbol = (t.symbol === 'WETH') ? 'ETH' : t.symbol
+      // return t && symbol
+      console.log('addresslistpls', this.addressList)
+      if (!this.addressList[address]) {
+        console.log('why did this not work?', address)
+        return ''
+      }
+      const tempSymbol = this.addressList[address].symbol
+      return (tempSymbol === 'WETH') ? 'ETH' : tempSymbol
     }
   }
 }

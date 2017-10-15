@@ -22,6 +22,12 @@ export default {
       return a.name - b.name
     })
   },
+  tokenSymbols: (state) => {
+    return state.tokens.map((token) => token.symbol)
+  },
+  rates: (state) => {
+    return state.rates
+  },
   address: (state) => {
     return state.addresses.length && state.addresses[0]
   },
@@ -32,7 +38,15 @@ export default {
     return state.conversion
   },
   coinList (state) {
-    return state.coinList.Data
+    return state.coinList
+  },
+  addressList (state) {
+    let addresses = {}
+    state.coinList.forEach((coin) => {
+      addresses[coin.address] = coin
+    })
+    console.log('addresses', addresses)
+    return addresses
   },
   totalItems (state) {
     return state.totalItems

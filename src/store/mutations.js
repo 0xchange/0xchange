@@ -35,6 +35,9 @@ export default {
   UPDATE_RATES (state, rates) {
     state.rates = rates
   },
+  UPDATE_RATE (state, rate) {
+    state.rates[rate.from][rate.to] = rate.price
+  },
   SET_ADDRESSES (state, addresses) {
     state.addresses = addresses
   },
@@ -46,5 +49,8 @@ export default {
   },
   SET_PAGINATION (state, pagination) {
     state.pagination = pagination
+  },
+  ADD_COINLIST (state, coinlist) {
+    state.coinList = coinlist
   }
 }

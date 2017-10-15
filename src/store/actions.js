@@ -5,9 +5,13 @@ import axios from 'axios'
 // import jsonpAdapter from 'axios-jsonp'
 import BN from 'bignumber.js'
 import { ZeroEx } from '0x.js'
+import io from 'socket.io-client'
+import CCC from '../socket/ccc.js'
 
 let zeroEx = null
 
+// option for prices
+const priceSymbols = ['USD', 'CAD', 'BTC']
 // let abi = require('../assets/contracts/Exchange.json')
 // const abiDecoder = require('abi-decoder')
 // var Web3EthAbi = require('web3-eth-abi')
@@ -37,7 +41,50 @@ export default {
   removeNotification ({commit}, id) {
     commit('REMOVE_MSG', id)
   },
-  connect ({dispatch, commit}) {
+  getRates ({commit, dispatch}, symbols) {
+    const symbolsString = symbols.join()
+    const priceSymbolsString = priceSymbols.join()
+    const testString = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString
+    console.log(testString)
+    axios.get(testString).then((results) => {
+      console.log('THE RATES HAVE BEEN UPDATED', results.data)
+      commit('UPDATE_RATES', results.data)
+      dispatch('openRateSocket', symbols)
+    })
+  },
+  openRateSocket ({commit}, symbols) {
+    const subscription = []
+
+    // Format: {SubscriptionId}~{ExchangeName}~{FromSymbol}~{ToSymbol}
+    // Use SubscriptionId 0 for TRADE, 2 for CURRENT and 5 for CURRENTAGG
+    // For aggregate quote updates use CCCAGG as market
+
+    symbols.forEach((symbol) => {
+      priceSymbols.forEach((pSymbol) => {
+        const str = '5~CCCAGG~' + symbol + '~' + pSymbol
+        subscription.push(str)
+      })
+    })
+    console.log(JSON.stringify(subscription))
+
+    var socket = io.connect('https://streamer.cryptocompare.com/')
+
+    socket.emit('SubAdd', {subs: subscription})
+
+    socket.on('m', function (message) {
+      var messageType = message.substring(0, message.indexOf('~'))
+      var res = {}
+      if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
+        res = CCC.CURRENT.unpack(message)
+        if (res.PRICE) {
+          // const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
+          // console.log(JSON.stringify(rate))
+          // commit('UPDATE_RATE', rate)
+        }
+      }
+    })
+  },
+  connect ({dispatch, commit, getters, state}) {
     let providerEngine = null
     if (window.web3) {
       providerEngine = window.web3.currentProvider
@@ -76,6 +123,13 @@ export default {
     zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
       console.log('tokens returned')
       commit('ADD_TOKENS', tokens)
+      console.log('tokens:', tokens)
+      const symbols = getters.tokenSymbols
+      var index = symbols.indexOf('WETH')
+      if (index !== -1) {
+        symbols[index] = 'ETH'
+      }
+      dispatch('getRates', symbols)
     })
     commit('SET_NULL_ADDRESS', ZeroEx.NULL_ADDRESS)
     zeroEx.etherToken.getContractAddressAsync().then((address) => {
@@ -135,12 +189,25 @@ export default {
       console.error(error)
     })
   },
-  pageServer ({commit, state, dispatch}) {
+  pageServer ({commit, state, dispatch, getters}) {
+    console.log('page server')
     axios.get('http://138.197.172.238/order').then((results) => {
       console.log(results)
       commit('ADD_ORDERS', results.data)
     }).catch((error) => {
       console.error(error)
     })
+    axios.get('http://138.197.172.238/token')
+    .then((results) => {
+      console.log(results.data)
+      commit('ADD_COINLIST', results.data)
+    })
+
+    // axios.post('http://138.197.172.238/token/new').then((results) => {
+    //   console.log(results)
+    //   commit('ADD_ORDERS', results.data)
+    // }).catch((error) => {
+    //   console.error(error)
+    // })
   }
 }
