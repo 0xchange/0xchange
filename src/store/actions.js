@@ -1,7 +1,7 @@
 import ProviderEngine from 'web3-provider-engine'
 import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
-// import axios from 'axios'
+import axios from 'axios'
 // import jsonpAdapter from 'axios-jsonp'
 import BN from 'bignumber.js'
 import { ZeroEx } from '0x.js'
@@ -38,14 +38,15 @@ export default {
   removeNotification ({commit}, id) {
     commit('REMOVE_MSG', id)
   },
-  setAddresses () {
-
-  },
-  getRates ({commit}, symbols) {
+  getRates ({commit, dispatch}, symbols) {
     const symbolsString = symbols.join()
     const priceSymbolsString = priceSymbols.join()
-    axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString).then((results) => {
+    const testString = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString
+    console.log(testString)
+    axios.get(testString).then((results) => {
+      console.log('THE RATES HAVE BEEN UPDATED', results.data)
       commit('UPDATE_RATES', results.data)
+      dispatch('openRateSocket', symbols)
     })
   },
   openRateSocket ({commit}, symbols) {
@@ -73,17 +74,14 @@ export default {
       if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
         res = CCC.CURRENT.unpack(message)
         if (res.PRICE) {
-          const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
-          console.log(JSON.stringify(rate))
-          commit('UPDATE_RATE', rate)
+          // const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
+          // console.log(JSON.stringify(rate))
+          // commit('UPDATE_RATE', rate)
         }
       }
     })
   },
-  connect ({dispatch, commit}) {
-    dispatch('getRates', ['ETH', 'BTC', 'OMG'])
-    // get tokens here
-    dispatch('openRateSocket', ['ETH', 'BTC', 'OMG'])
+  connect ({dispatch, commit, getters, state}) {
     let providerEngine = null
     if (window.web3) {
       providerEngine = window.web3.currentProvider
@@ -107,6 +105,13 @@ export default {
     zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
       console.log('tokens returned')
       commit('ADD_TOKENS', tokens)
+      console.log('tokens:', tokens)
+      const symbols = getters.tokenSymbols
+      var index = symbols.indexOf('WETH')
+      if (index !== -1) {
+        symbols[index] = 'ETH'
+      }
+      dispatch('getRates', symbols)
     })
     commit('SET_NULL_ADDRESS', ZeroEx.NULL_ADDRESS)
     zeroEx.etherToken.getContractAddressAsync().then((address) => {

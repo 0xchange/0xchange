@@ -13,13 +13,6 @@ export default {
     return state.zeroEx
   },
   tokens: (state) => {
-    return state.tokens
-  },
-  tokenSymbols: () => {
-    return this.tokens.map((token) => token.symbol)
-  },
-  rates: (state) => {
-    return state.rates
     let tokens = []
     state.tokens.forEach((token) => {
       if (tokens.findIndex((t) => t.address === token.address) < 0) {
@@ -29,6 +22,12 @@ export default {
     return tokens.sort((a, b) => {
       return a.name - b.name
     })
+  },
+  tokenSymbols: (state) => {
+    return state.tokens.map((token) => token.symbol)
+  },
+  rates: (state) => {
+    return state.rates
   },
   address: (state) => {
     return state.addresses.length && state.addresses[0]

@@ -24,13 +24,6 @@
         v-bind:items="selectTokens(true)">
         </v-select>
       </v-flex>
-      <v-flex xs12  md4 offset-md2>
-        <v-select
-        label="Make Order"
-        v-model="makerAddress"
-        v-bind:items="selectTokens(false)">
-        </v-select>
-      </v-flex>
     </v-layout>
 
 
@@ -60,6 +53,8 @@
       class="elevation-1"
     >
       <template slot="items" scope="props">
+      <!-- :class="goodPrice(props.item.args)" -->
+        <td class="text-xs-right">{{ calculateOrderRates(props.item.args) }}</td>
         <td class="text-xs-right">{{ getToken(props.item.args.makerToken) }}</td>
         <td class="text-xs-right">{{ getToken(props.item.args.takerToken) }}</td>
 <!--         <td class="text-xs-right">{{ shorten(props.item.args.maker) }}</td>
@@ -79,7 +74,8 @@
 <script>
 import Token from '@/components/Token'
 import Order from '@/components/Order'
-import axios from 'axios'
+import _ from 'lodash'
+// import axios from 'axios'
 
 // import { ZeroEx } from '0x.js'
 // import BN from 'bignumber.js'
@@ -91,6 +87,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      desiredCurrency: 'USD',
       takerAddress: null,
       makerAddress: null,
       paged: 0,
@@ -100,6 +97,10 @@ export default {
       newOrder: false,
       order: null,
       headers: [
+        {
+          text: 'price ($SAI)',
+          value: 'args.price'
+        },
         {
           text: 'takerToken',
           value: 'args.takerToken'
@@ -139,20 +140,8 @@ export default {
       ]
     }
   },
-  watch: {
-    symbolsString () {
-      this.getExchange()
-    }
-  },
   mounted () {
     this.connect()
-    const blahrates = this.calculateOrderRates({
-      makerToken: 'ETH',
-      takerToken: 'BTC',
-      filledMakerTokenAmount: 100,
-      filledTakerTokenAmount: 10
-    })
-    console.log('pls?', JSON.stringify(blahrates))
   },
   computed: {
     ...mapGetters(['logs', 'tokens', 'rates']),
@@ -163,20 +152,31 @@ export default {
         (!this.takerAddress && !this.makerAddress) ||
         (this.takerAddress && con.args.takerToken === this.takerAddress && this.makerAddress && con.args.makerToken === this.makerAddress)
       })
-    },
-    symbolsString () {
-      return this.tokens.map((token) => token.symbol).join()
     }
   },
   methods: {
+    goodPrice (order) {
+      let ourPrice = this.calculateOrderRates(order)
+      let theirPrice = this.rates[this.getTokenSymbol(order.takerToken)]
+      return {
+        goodPrice: ourPrice < theirPrice,
+        badPrice: ourPrice > theirPrice
+      }
+    },
     calculateOrderRates (order) {
-      const {takerToken, filledMakerTokenAmount, filledTakerTokenAmount} = order
-      const ratio = filledTakerTokenAmount / filledMakerTokenAmount
-      const orderRates = this.rates[takerToken]
-      Object.keys(orderRates).map((key, index) => {
-        orderRates[key] *= ratio
-      })
-      return orderRates
+      const {makerToken, takerToken, filledMakerTokenAmount, filledTakerTokenAmount} = order
+      // console.log('order...', order)
+      // console.log('takernum: ' + filledTakerTokenAmount.toNumber())
+      // console.log('Makernum: ' + filledMakerTokenAmount.toNumber())
+      const ratio = filledTakerTokenAmount.toNumber() / filledMakerTokenAmount.toNumber()
+      console.log('ratio: ' + ratio)
+      console.log('takerToken', takerToken)
+      console.log('toksymbol', this.getTokenSymbol(makerToken))
+      // console.log(this.rates)
+      const takerOrderRates = this.rates[this.getTokenSymbol(takerToken)]
+      if (!takerOrderRates) return ''
+      const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
+      return makerOrderRates[this.desiredCurrency]
     },
     ...mapActions(['connect', 'withdraw', 'deposit']),
     close () {
@@ -230,16 +230,19 @@ export default {
     shorten (str) {
       return str.slice(0, 8)
     },
-    getExchange () {
-      axios.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + this.symbolsString + '&tsyms=USD,CAD').then((results) => {
-        this.exchangeResults = results.data
-      })
-    },
     getToken (address) {
       let t = this.tokens.find((token) => {
         return token.address === address
       })
       return t && t.name
+    },
+    getTokenSymbol (address) {
+      let t = this.tokens.find((token) => {
+        return token.address === address
+      })
+      if (!t) return ''
+      const symbol = (t.symbol === 'WETH') ? 'ETH' : t.symbol
+      return t && symbol
     }
   }
 }
