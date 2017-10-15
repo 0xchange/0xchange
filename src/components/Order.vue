@@ -6,14 +6,12 @@
           <v-card-text>
             <v-container grid-list-md>
               <v-layout wrap >
-
-                <v-flex xs5 v-if="order && (!order.makertokenaddress || !order.takertokenaddress)"  >
+                <v-flex xs5 v-if="shouldShow"  >
                   <v-text-field 
                   :rules="[() => (tmpOrder.makerTokenAddress && tmpOrder.makerTokenAddress.length > 0) || 'This field is required']"
                   required  label="Maker Token Address" required v-model="tmpOrder.makerTokenAddress"></v-text-field>
                 </v-flex>
-
-                <v-flex xs5 v-if="order && (!order.takertokenaddress || !order.makertokenaddress)" offset-xs1>
+                <v-flex xs5 v-if="shouldShow" offset-xs1>
                   <v-text-field 
                   :rules="[() => (tmpOrder.takerTokenAddress && tmpOrder.takerTokenAddress.length > 0) || 'This field is required']"
                    required label="Taker Token Address" required v-model="tmpOrder.takerTokenAddress"></v-text-field>
@@ -162,6 +160,9 @@ export default {
   },
   computed: {
     ...mapGetters(['address', 'tokens', 'conversion']),
+    shouldShow () {
+      return this.order && (!this.order.makerTokenAddress || !this.order.takerTokenAddress)
+    },
     orderKeys () {
       return Object.keys(this.tmpOrder)
     }
@@ -198,8 +199,8 @@ export default {
       this.tmpOrder.maker = this.address
       this.tmpOrder.taker = this.$store.state.NULL_ADDRESS
       this.tmpOrder.feeRecipient = this.$store.state.NULL_ADDRESS
-      this.tmpOrder.makerTokenAddress = this.order.makertokenaddress
-      this.tmpOrder.takerTokenAddress = this.order.takertokenaddress
+      this.tmpOrder.makerTokenAddress = this.order.makerTokenAddress
+      this.tmpOrder.takerTokenAddress = this.order.takerTokenAddress
       this.tmpOrder.exchangeContractAddress = this.$store.state.EXCHANGE_ADDRESS
       this.tmpOrder.salt = ZeroEx.generatePseudoRandomSalt()
       this.tmpOrder.makerFee = 0

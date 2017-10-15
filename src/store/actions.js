@@ -12,6 +12,8 @@ let zeroEx = null
 
 // option for prices
 const priceSymbols = ['USD', 'CAD', 'BTC']
+let abi = require('../assets/contracts/Exchange.json')
+const abiDecoder = require('abi-decoder')
 
 export default {
   withdraw ({commit, state}, eth) {
@@ -101,6 +103,15 @@ export default {
     zeroEx.exchange.getLogsAsync('LogFill', {fromBlock: 4219261, toBlock: 'latest'}, {}).then((logs) => {
       // console.log(logs)
       commit('ADD_LOGS', logs)
+      console.log(logs[0])
+      let data = logs[0].data
+      abiDecoder.addABI(abi.abi)
+      // const testData = "0x53d9d9100000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000a6d9c5f7d4de3cef51ad3b7235d79ccc95114de5000000000000000000000000a6d9c5f7d4de3cef51ad3b7235d79ccc95114daa";
+      const decodedData = abiDecoder.decodeMethod(data)
+      console.log(decodedData)
+      // zeroEx._web3Wrapper.web3.eth.getTransaction(tx, (result) => {
+      //   console.log(result)
+      // })
     })
     zeroEx.tokenRegistry.getTokensAsync().then((tokens) => {
       console.log('tokens returned')
@@ -172,14 +183,16 @@ export default {
     })
   },
   pageServer ({commit, state, dispatch}) {
-    axios.get('http://138.197.172.238/get', {
-      sortBy: state.pagination.sortBy,
+    axios.post('http://138.197.172.238/get', {
+      sortBy: state.pagination.sortBy.toLowerCase(),
       asc: state.pagination.descending,
       limit: state.pagination.rowsPerPage,
       page: state.pagination.page
     }).then((results) => {
       console.log(results)
       commit('ADD_ORDERS', results.data)
+    }).catch((error) => {
+      console.error(error)
     })
   }
 }

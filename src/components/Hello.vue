@@ -29,7 +29,7 @@
           </template>
         </v-select>
       </v-flex>
-      <v-flex xs12 md4  offset-md4>
+      <v-flex xs12 sm4  offset-sm4>
         <v-select
         clearable
         :editable="false"
@@ -44,18 +44,18 @@
 
 
     <v-layout row wrap>
-      <v-flex xs12 md4 offset-md1>
+      <v-flex xs12 sm4 offset-sm1>
        <token :token="getTokenSymbol(makerAddress)"></token>
       </v-flex>
 
 
-      <v-flex xs12 md2 class='text-xs-center mt-5'>
+      <v-flex xs12 sm2 class='text-xs-center mt-5'>
         <v-btn @click="makeOrder()">Make Order</v-btn>
         <v-btn @click="makeRawOrder()">Add Raw Order</v-btn>
       </v-flex>
 
 
-      <v-flex xs12  md4 >
+      <v-flex xs12  sm4 >
         <token :token="getTokenSymbol(takerAddress)"></token>
       </v-flex>
     </v-layout>
@@ -74,12 +74,14 @@
       <template slot="items" scope="props">
       <!-- :class="goodPrice(props.item.args)" -->
         <td class="text-xs-right">{{ calculateOrderRates(props.item) }}</td>
-        <td class="text-xs-right">{{ getTokenSymbol(props.item.makertokenaddress) }}</td>
-        <td class="text-xs-right">{{ shorten(props.item.makerfee) }}</td>
-        <td class="text-xs-right">{{ formatDecimals(props.item.makertokenaddress, props.item.makertokenamount) }}</td>
-        <td class="text-xs-right">{{ getTokenSymbol(props.item.takertokenaddress) }}</td>
-        <td class="text-xs-right">{{ shorten(props.item.takerfee) }}</td>
-        <td class="text-xs-right">{{ formatDecimals(props.item.takertokenaddress, props.item.takertokenamount) }}</td>
+        <td class="text-xs-right">{{ getTokenSymbol(props.item.makerTokenAddress) }}</td>
+        <td class="text-xs-right">{{ shorten(props.item.makerFee) }}</td>
+        <td class="text-xs-right">{{ formatDecimals(props.item.makerTokenAddress, props.item.makerTokenAmount) }}</td>
+
+
+        <td class="text-xs-right">{{ getTokenSymbol(props.item.takerTokenAddress) }}</td>
+        <td class="text-xs-right">{{ shorten(props.item.takerFee) }}</td>
+        <td class="text-xs-right">{{ formatDecimals(props.item.takerTokenAddress, props.item.takerTokenAmount) }}</td>
         <td class="text-xs-right"><v-btn @click.native.stop="take(props.item)">Take</v-btn></td>
       </template>
     </v-data-table>
@@ -106,7 +108,7 @@ export default {
   data () {
     return {
       desiredCurrency: 'USD',
-      pagination: { sortBy: 'makerfee', page: 1, rowsPerPage: 10, descending: false, totalItems: 0 },
+      pagination: { sortBy: 'makerFee', page: 1, rowsPerPage: 5, descending: false, totalItems: 0 },
       takerAddress: null,
       makerAddress: null,
       searchTakerAddress: null,
@@ -122,28 +124,28 @@ export default {
           value: 'args.price'
         },
         {
-          text: 'makertokenaddress',
-          value: 'makertokenaddress'
+          text: 'Maker Token',
+          value: 'makerTokenAddress'
         },
         {
-          text: 'makerfee',
-          value: 'makerfee'
+          text: 'Maker Fee',
+          value: 'makerFee'
         },
         {
-          text: 'makertokenamount',
-          value: 'makertokenamount'
+          text: 'Maker Amount',
+          value: 'makerTokenAmount'
         },
         {
-          text: 'takertokenaddress',
-          value: 'takertokenaddress'
+          text: 'Taker Token',
+          value: 'takerTokenAddress'
         },
         {
-          text: 'takerfee',
-          value: 'takerfee'
+          text: 'Taker Fee',
+          value: 'takerFee'
         },
         {
-          text: 'takertokenamount',
-          value: 'takertokenamount'
+          text: 'Taker Amount',
+          value: 'takerTokenAmount'
         }
       ]
     }
@@ -164,15 +166,15 @@ export default {
     this.connect()
   },
   computed: {
-    ...mapGetters(['logs', 'tokens', 'totalItems', 'orders', 'rates', 'addressList']),
-    logsFiltered () {
-      return this.logs.filter((con) => {
-        return (this.takerAddress && !this.makerAddress && con.takertokenaddress === this.takerAddress) ||
-        (this.makerAddress && !this.takerAddress && con.makertokenaddress === this.makerAddress) ||
-        (!this.takerAddress && !this.makerAddress) ||
-        (this.takerAddress && con.takertokenaddress === this.takerAddress && this.makerAddress && con.makertokenaddress === this.makerAddress)
-      })
-    }
+    ...mapGetters(['tokens', 'totalItems', 'orders', 'rates', 'addressList']),
+    // logsFiltered () {
+    //   return this.logs.filter((con) => {
+    //     return (this.takerAddress && !this.makerAddress && con.takerTokenAddress === this.takerAddress) ||
+    //     (this.makerAddress && !this.takerAddress && con.makerTokenAddress === this.makerAddress) ||
+    //     (!this.takerAddress && !this.makerAddress) ||
+    //     (this.takerAddress && con.takerTokenAddress === this.takerAddress && this.makerAddress && con.makerTokenAddress === this.makerAddress)
+    //   })
+    // },
   },
   methods: {
     goodPrice (order) {
@@ -216,10 +218,8 @@ export default {
     makeOrder () {
       this.newOrder = true
       this.order = {
-        args: {
-          makerToken: this.makerAddress,
-          takerToken: this.takerAddress
-        }
+        makerTokenAddress: this.makerAddress,
+        takerTokenAddress: this.takerAddress
       }
     },
     makeRawOrder () {
@@ -236,10 +236,8 @@ export default {
     },
     selectTokens (maker = true) {
       let foo = this.tokens.map((token) => {
-        let quant = this.tokenQuant(token.address, maker)
         return {
-          text: token.name + ' - ' + token.symbol + ' (' + quant + ')',
-          quant,
+          text: token.name + ' - ' + token.symbol,
           value: token.address
           // disabled: this.tokenQuant(token.address, maker) === 0
         }
@@ -254,11 +252,6 @@ export default {
       //   'value': null
       // })
       return foo
-    },
-    tokenQuant (address, maker) {
-      return this.logsFiltered.filter((log) => {
-        return (!maker && log.makertokenaddress === address) || (maker && log.takertokenaddress === address)
-      }).length
     },
     shorten (str) {
       return str.slice(0, 8)
