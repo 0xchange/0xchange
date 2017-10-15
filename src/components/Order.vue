@@ -182,6 +182,8 @@ export default {
     createOrder () {
       if (this.$refs.form.validate()) {
         this.tmpOrder.expirationUnixTimestampSec = new BN(moment(this.tmpOrder.date + ' ' + this.tmpOrder.time, 'YYYY-MM-DD HH:mz').format('X'))
+        delete (this.tmpOrder.date)
+        delete (this.tmpOrder.time)
         this.tmpOrder.makerTokenAddress = this.tmpOrder.makerTokenAddress
         this.tmpOrder.takerTokenAddress = this.tmpOrder.takerTokenAddress
         this.tmpOrder.makerFee = new BN(this.tmpOrder.makerFee)
