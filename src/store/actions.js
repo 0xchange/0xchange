@@ -275,7 +275,7 @@ export default {
       dispatch('getRates', symbols)
       setInterval(() => {
         dispatch('getRates', symbols)
-      }, 5000)
+      }, 50000)
     })
   }
 }
