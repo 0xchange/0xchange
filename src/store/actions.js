@@ -237,7 +237,7 @@ export default {
     // })
     dispatch('getTokens')
   },
-  getTokens ({commit}) {
+  getTokens ({commit, getters, dispatch}) {
     axios.get('//api.0xchange.me/token')
     .then((results) => {
       console.log(results.data)

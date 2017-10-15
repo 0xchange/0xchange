@@ -65,14 +65,15 @@
     </v-layout>
 
     <v-data-table
+      :pagination.sync="pagination"
       v-bind:headers="headers"
       :items="orders"
       class="elevation-1"
     >
       <template slot="items" scope="props">
       <!-- :class="goodPrice(props.item.args)" -->
-        <td class="text-xs-right">{{ getMarketRate(props.item.makerTokenAddress) }}</td>
-        <td class="text-xs-right">{{ calculateOrderRates(props.item) }}</td>
+        <td :class="goodPrice(getMarketRate(props.item.makerTokenAddress), calculateOrderRates(props.item))" class="text-xs-right">{{ getMarketRate(props.item.makerTokenAddress) }}</td>
+        <td class="flare text-xs-right">{{ calculateOrderRates(props.item) }}</td>
         <td class="text-xs-right">{{ getTokenSymbol(props.item.makerTokenAddress) }}</td>
         <td class="text-xs-right">{{ shorten(props.item.makerFee) }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.makerTokenAddress, props.item.makerTokenAmount) }}</td>
@@ -107,7 +108,7 @@ export default {
   data () {
     return {
       desiredCurrency: 'USD',
-      pagination: { sortBy: 'makerFee', page: 1, rowsPerPage: 5, descending: false, totalItems: 0 },
+      pagination: { sortBy: 'makerFee', page: 1, rowsPerPage: 20, descending: false, totalItems: 0 },
       takerAddress: null,
       makerAddress: null,
       searchTakerAddress: null,
@@ -180,12 +181,15 @@ export default {
     // },
   },
   methods: {
-    goodPrice (order) {
-      let ourPrice = this.calculateOrderRates(order)
-      let theirPrice = this.rates[this.getTokenSymbol(order.takerToken)]
+    flare (order) {
       return {
-        goodPrice: ourPrice < theirPrice,
-        badPrice: ourPrice > theirPrice
+        'background-color': '#' + (Math.random() * 0xFFFFFF << 0).toString(16)
+      }
+    },
+    goodPrice (one, two) {
+      return {
+        goodPrice: one < two,
+        badPrice: two < one
       }
     },
     ...mapActions(['connect', 'withdraw', 'deposit', 'pageServer', 'setPagination', 'addTokenAddress']),
@@ -202,7 +206,7 @@ export default {
 
       // console.log(this.rates)
       const takerOrderRates = this.rates[takerTokenSymbol]
-      if (!takerOrderRates) return '??'
+      if (!takerOrderRates) return ''
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
       return (makerOrderRates && makerOrderRates[this.desiredCurrency]) || ''
     },
@@ -300,5 +304,11 @@ li {
 
 a {
   color: #42b983;
+}
+.goodPrice {
+  color: green;
+}
+.badPrice {
+  color: red;
 }
 </style>
