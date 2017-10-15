@@ -71,6 +71,7 @@
     >
       <template slot="items" scope="props">
       <!-- :class="goodPrice(props.item.args)" -->
+        <td class="text-xs-right">{{ getMarketRate(props.item.makerTokenAddress) }}</td>
         <td class="text-xs-right">{{ calculateOrderRates(props.item) }}</td>
         <td class="text-xs-right">{{ getTokenSymbol(props.item.makerTokenAddress) }}</td>
         <td class="text-xs-right">{{ shorten(props.item.makerFee) }}</td>
@@ -118,8 +119,12 @@ export default {
       order: null,
       headers: [
         {
-          text: 'price ($SAI)',
-          value: 'args.price'
+          text: 'Market Price (SAI)',
+          value: 'marketPrice'
+        },
+        {
+          text: 'Asking Price (SAI)',
+          value: 'askingPrice'
         },
         {
           text: 'Maker Token',
@@ -206,6 +211,11 @@ export default {
       if (!takerOrderRates) return ''
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
       return makerOrderRates[this.desiredCurrency]
+    },
+    getMarketRate (address) {
+      const symbol = this.getTokenSymbol(address)
+      const marketRates = this.rates[symbol]
+      return marketRates[this.desiredCurrency]
     },
     close () {
       this.order = null
