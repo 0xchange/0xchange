@@ -164,7 +164,7 @@ export default {
     this.connect()
   },
   computed: {
-    ...mapGetters(['tokens', 'totalItems', 'orders', 'rates', 'addressList'])
+    ...mapGetters(['tokens', 'totalItems', 'orders', 'rates', 'addressList', 'coinList'])
     // logsFiltered () {
     //   return this.logs.filter((con) => {
     //     return (this.takerAddress && !this.makerAddress && con.takerTokenAddress === this.takerAddress) ||
@@ -203,7 +203,7 @@ export default {
       console.log('toksymbol', makerTokenSymbol)
       // console.log(this.rates)
       const takerOrderRates = this.rates[takerTokenSymbol]
-      if (!takerOrderRates) return ''
+      if (!takerOrderRates) return '??'
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
       return makerOrderRates[this.desiredCurrency]
     },
@@ -259,19 +259,23 @@ export default {
       return t && t.name
     },
     getTokenSymbol (address) {
-      // let t = this.tokens.find((token) => {
-      //   return token.address === address
-      // })
-      // if (!t) return ''
-      // const symbol = (t.symbol === 'WETH') ? 'ETH' : t.symbol
-      // return t && symbol
-      console.log('addresslistpls', this.addressList)
-      if (!this.addressList[address]) {
-        console.log('why did this not work?', address)
-        return ''
-      }
-      const tempSymbol = this.addressList[address].symbol
-      return (tempSymbol === 'WETH') ? 'ETH' : tempSymbol
+      console.log(address)
+      console.log(this.coinList)
+      console.log(this.tokens)
+      let t = this.coinList.find((token) => {
+        // console.log(address, token.address)
+        return token.address.toLowerCase() === address.toLowerCase()
+      })
+      if (!t) return ''
+      const symbol = (t.symbol === 'WETH') ? 'ETH' : t.symbol
+      return symbol || ''
+      // console.log('addresslistpls', this.addressList)
+      // if (!this.addressList[address]) {
+      //   console.log('why did this not work?', address)
+      //   return ''
+      // }
+      // const tempSymbol = this.addressList[address].symbol
+      // return (tempSymbol === 'WETH') ? 'ETH' : tempSymbol
     }
   }
 }

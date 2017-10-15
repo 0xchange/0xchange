@@ -166,6 +166,7 @@ export default {
     // }
 
     let orderHash = ZeroEx.getOrderHashHex(order)
+    console.log(orderHash)
     return zeroEx.signOrderHashAsync(orderHash, state.addresses[0]).then((ecSignature) => {
       const signedOrder = {
         ...order,
@@ -173,7 +174,7 @@ export default {
       }
       console.log(signedOrder)
       // commit('ADD_ORDER', signedOrder)
-      return axios.post('http://138.197.172.238/order/new', signedOrder).then((results) => {
+      return axios.post('//138.197.172.238/order/new', signedOrder).then((results) => {
         console.log(results)
         dispatch('pageServer')
         dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
@@ -191,13 +192,13 @@ export default {
   },
   pageServer ({commit, state, dispatch, getters}) {
     console.log('page server')
-    axios.get('http://138.197.172.238/order').then((results) => {
+    axios.get('//138.197.172.238/order').then((results) => {
       console.log(results)
       commit('ADD_ORDERS', results.data)
     }).catch((error) => {
       console.error(error)
     })
-    axios.get('http://138.197.172.238/token')
+    axios.get('//138.197.172.238/token')
     .then((results) => {
       console.log(results.data)
       commit('ADD_TOKENS', results.data)
