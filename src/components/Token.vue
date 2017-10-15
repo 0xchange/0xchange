@@ -30,7 +30,7 @@ export default {
     ...mapGetters(['tokens', 'addressList', 'cryptoList']),
     bgImage () {
       let symbol = this.getSymbol(this.token)
-      let url = !this.token || !symbol || !this.cryptoList[symbol] ? '/static/emoji_' + this.random() + '.png' : 'https://cryptocompare.com/' + this.cryptoList[symbol].ImageUrl
+      let url = !this.token || !symbol || !this.cryptoList[symbol] ? '/static/emoji_' + this.random() + '.png' : '//cryptocompare.com/' + this.cryptoList[symbol].ImageUrl
       return 'background-image: url("' + url + '")'
     }
   }

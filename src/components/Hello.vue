@@ -194,28 +194,22 @@ export default {
       // alert(address)
       // Perform your AJAX call to backend here :D
     },
-    isEmpty () {
-      console.log('isEmpty')
-    },
     calculateOrderRates (order) {
-      console.log('order!', order)
-      const {makerTokenAddress, takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
-      const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
+      const {takerTokenAddress, makerTokenAmount, takerTokenAmount} = order
+      // const makerTokenSymbol = this.getTokenSymbol(makerTokenAddress)
       const takerTokenSymbol = this.getTokenSymbol(takerTokenAddress)
       const ratio = takerTokenAmount / makerTokenAmount
-      console.log('ratio: ' + ratio)
-      console.log('takerToken', takerTokenSymbol)
-      console.log('toksymbol', makerTokenSymbol)
+
       // console.log(this.rates)
       const takerOrderRates = this.rates[takerTokenSymbol]
       if (!takerOrderRates) return '??'
       const makerOrderRates = _.mapValues(takerOrderRates, (rate) => { return rate * ratio })
-      return makerOrderRates[this.desiredCurrency]
+      return (makerOrderRates && makerOrderRates[this.desiredCurrency]) || ''
     },
     getMarketRate (address) {
       const symbol = this.getTokenSymbol(address)
       const marketRates = this.rates[symbol]
-      return marketRates[this.desiredCurrency]
+      return (marketRates && marketRates[this.desiredCurrency]) || ''
     },
     close () {
       this.order = null
@@ -269,9 +263,6 @@ export default {
       return t && t.name
     },
     getTokenSymbol (address) {
-      console.log(address)
-      console.log(this.coinList)
-      console.log(this.tokens)
       let t = this.coinList.find((token) => {
         // console.log(address, token.address)
         return token.address.toLowerCase() === address.toLowerCase()
