@@ -245,20 +245,20 @@ export default {
     axios.get('//api.0xchange.me/token')
     .then((results) => {
       // console.log(results.data)
-      const filteredData = results.data.filter((coin) => {
-        const s = coin.symbol
-        if (/[^a-zA-Z0-9]/.test(s)) {
-          return false
-        } else {
-          return ((s.toUpperCase() === s) && s.length < 5)
-        }
-      })
-      const mappedData = filteredData.map((coin) => {
-        const newCoin = coin
-        newCoin.address = newCoin.address.toLowerCase()
-        return newCoin
-      })
-      commit('ADD_COINLIST', mappedData)
+      // const filteredData = results.data.filter((coin) => {
+      //   const s = coin.symbol
+      //   if (/[^a-zA-Z0-9]/.test(s)) {
+      //     return false
+      //   } else {
+      //     return ((s.toUpperCase() === s) && s.length < 5)
+      //   }
+      // })
+      // const mappedData = filteredData.map((coin) => {
+      //   const newCoin = coin
+      //   newCoin.address = newCoin.address.toLowerCase()
+      //   return newCoin
+      // })
+      commit('ADD_COINLIST', results.data)
       // console.log('orders---', getters.orders)
       const symbols = []
       getters.orders.forEach((order) => {
