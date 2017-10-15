@@ -129,12 +129,7 @@ export default {
     })
   },
   pageServer ({commit, state, dispatch}) {
-    axios.post('http://138.197.172.238/get', {
-      sortBy: state.pagination.sortBy.toLowerCase(),
-      asc: state.pagination.descending,
-      limit: state.pagination.rowsPerPage,
-      page: state.pagination.page
-    }).then((results) => {
+    axios.get('http://138.197.172.238/get').then((results) => {
       console.log(results)
       commit('ADD_ORDERS', results.data)
     }).catch((error) => {

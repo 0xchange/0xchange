@@ -66,7 +66,6 @@
 
     <v-data-table
       :total-items="totalItems"
-      :pagination.sync="pagination"
       v-bind:headers="headers"
       :items="orders"
       class="elevation-1"
