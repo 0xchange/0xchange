@@ -8,9 +8,29 @@
 
                 <v-flex xs12  >
                   <v-text-field 
-                  textarea
-                  :rules="[() => (raw && raw.length > 0) || 'This field is required']"
-                  required  label="Raw Signed Transaction" required v-model="raw">
+                  :rules="[() => (name && name.length > 0) || 'This field is required']"
+                  required  label="Name" required v-model="name">
+                  </v-text-field>
+                </v-flex>                
+                <v-flex xs12  >
+                  <v-text-field 
+                  :rules="[() => (symbol && symbol.length > 0) || 'This field is required']"
+                  required  label="Symbol" required v-model="symbol">
+                  </v-text-field>
+                </v-flex>                
+                <v-flex xs12  >
+                  <v-text-field 
+                  :rules="[() => (address && address.length > 0) || 'This field is required']"
+                  required  label="Address" required v-model="address">
+                  </v-text-field>
+                </v-flex>                
+                <v-flex xs12  >
+                  <v-text-field 
+                  :rules="[() => (decimals && decimals.length > 0) || 'This field is required']"
+                  required 
+                  default="0"
+                  type="number"
+                   label="Decimals" required v-model="decimals">
                   </v-text-field>
                 </v-flex>
 
@@ -36,8 +56,12 @@ export default {
   props: ['rawOrder'],
   data () {
     return {
+      raw: null,
       dialog: false,
-      raw: ''
+      address: null,
+      name: null,
+      symbol: null,
+      decimals: null
     }
   },
   watch: {
@@ -45,6 +69,7 @@ export default {
       if (this.rawOrder) {
         this.dialog = true
         this.raw = ''
+        this.$refs.form.reset()
       } else {
         this.dialog = false
       }
@@ -54,13 +79,18 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['submitOrder']),
+    ...mapActions(['submitToken']),
     close () {
       this.$emit('close')
     },
     createOrder () {
       if (this.$refs.form.validate()) {
-        this.submitOrder(this.raw).then(() => {
+        this.submitToken({
+          decimals: this.decimals,
+          address: this.address,
+          name: this.name,
+          symbol: this.symbol
+        }).then(() => {
           this.close()
         })
       }
