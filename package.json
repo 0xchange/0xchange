@@ -28,6 +28,7 @@
     "vuetify": "^0.16.1",
     "vuex": "^3.0.0",
     "vuex-router-sync": "^5.0.0",
+    "web3-eth-abi": "^1.0.0-beta.23",
     "web3-provider-engine": "^13.3.2"
   },
   "devDependencies": {

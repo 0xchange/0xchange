@@ -49,5 +49,8 @@ export default {
   },
   SET_PAGINATION (state, pagination) {
     state.pagination = pagination
+  },
+  ADD_COINLIST (state, coinlist) {
+    state.coinList = coinlist
   }
 }

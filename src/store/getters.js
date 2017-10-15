@@ -38,7 +38,7 @@ export default {
     return state.conversion
   },
   coinList (state) {
-    return state.coinList.Data
+    return state.coinList
   },
   addressList (state) {
     let addresses = {}

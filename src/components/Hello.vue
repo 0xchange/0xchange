@@ -45,8 +45,8 @@
 
     <v-layout row wrap>
       <v-flex xs12 sm4 offset-sm1>
-       <token :token="getTokenSymbol(makerAddress)"></token>
-      </v-flex>
+<!--        <token :token="getTokenSymbol(makerAddress)"></token>
+ -->      </v-flex>
 
 
       <v-flex xs12 sm2 class='text-xs-center mt-5'>
@@ -56,8 +56,8 @@
 
 
       <v-flex xs12  sm4 >
-        <token :token="getTokenSymbol(takerAddress)"></token>
-      </v-flex>
+<!--         <token :token="getTokenSymbol(takerAddress)"></token>
+ -->      </v-flex>
     </v-layout>
 
 
@@ -66,7 +66,6 @@
 
     <v-data-table
       :total-items="totalItems"
-      :pagination.sync="pagination"
       v-bind:headers="headers"
       :items="orders"
       class="elevation-1"
