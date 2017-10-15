@@ -40,11 +40,11 @@
           </v-slide-y-transition>
         </v-container>
       </v-content>
-      <v-progress-circular 
-      style="position:fixed; top:10px; bottom:10px;" 
+      <v-progress-circular
+      style="position:fixed; top:10px; bottom:10px;"
       indeterminate color="primary" v-if="loading"></v-progress-circular>
     </main>
-   
+
 
   </v-app>
 </template>
