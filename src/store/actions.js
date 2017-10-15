@@ -230,9 +230,11 @@ export default {
   submitToken ({commit, dispatch}, token) {
     axios.post('//api.0xchange.me/token/new', token).then((results) => {
       console.log(results)
+      dispatch('addNotification', {type: 'success', 'text': 'Token Submitted!'})
       dispatch('getTokens')
     }).catch((error) => {
       console.error(error)
+      dispatch('addNotification', {type: 'error', 'text': 'error adding token, check log for details'})
     })
   },
   pageServer ({commit, state, dispatch, getters}) {
