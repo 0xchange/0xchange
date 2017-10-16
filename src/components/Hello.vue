@@ -71,8 +71,8 @@
     >
       <template slot="items" scope="props">
       <!-- :class="goodPrice(props.item.args)" -->
-        <td class="text-xs-right">{{ getMarketRate(props.item.makerTokenAddress) }}</td>
-        <td :class="goodPrice(getMarketRate(props.item.makerTokenAddress), calculateOrderRates(props.item))" class="flare text-xs-right">{{ calculateOrderRates(props.item) }}</td>
+        <td class="text-xs-right">{{ getMarketRate(props.item.makerTokenAddress) || 'N/A' }}</td>
+        <td :class="goodPrice(getMarketRate(props.item.makerTokenAddress), calculateOrderRates(props.item))" class="flare text-xs-right">{{ calculateOrderRates(props.item) || 'N/A' }}</td>
         <td class="text-xs-right">{{ getTokenSymbol(props.item.makerTokenAddress) }}</td>
         <td class="text-xs-right">{{ shorten(props.item.makerFee) || 0 }}</td>
         <td class="text-xs-right">{{ formatDecimals(props.item.makerTokenAddress, props.item.makerTokenAmount) }}</td>
@@ -180,8 +180,8 @@ export default {
     },
     goodPrice (one, two) {
       return {
-        goodPrice: one > two,
-        badPrice: two > one
+        goodPrice: parseFloat(one) > parseFloat(two),
+        badPrice: !(parseFloat(one) > parseFloat(two)) && parseFloat(two)
       }
     },
     ...mapActions(['connect', 'withdraw', 'deposit', 'pageServer', 'setPagination', 'addTokenAddress']),
