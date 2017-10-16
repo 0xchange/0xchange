@@ -199,15 +199,18 @@ export default {
         let raw = JSON.parse(JSON.stringify(this.tmpOrder))
         console.log(raw.date)
         console.log(raw.time)
+
         console.log(moment(raw.date + ' ' + raw.time, 'YYYY-MM-DD HH:mz').format('X'))
         raw.expirationUnixTimestampSec = new BN(moment(raw.date + ' ' + raw.time, 'YYYY-MM-DD HH:mz').format('X'))
         console.log(raw.expirationUnixTimestampSec)
-        raw.makerTokenAddress = raw.makerTokenAddress
-        raw.takerTokenAddress = raw.takerTokenAddress
+        delete (raw.date)
+        delete (raw.time)
         raw.makerFee = new BN(raw.makerFee)
         raw.takerFee = new BN(raw.takerFee)
         raw.makerTokenAmount = new BN(raw.makerTokenAmount)
         raw.takerTokenAmount = new BN(raw.takerTokenAmount)
+        raw.salt = new BN(raw.salt)
+
         if (!this.newOrder) {
           raw.expirationUnixTimestampSec = new BN(this.order.expirationUnixTimestampSec)
           raw.salt = new BN(this.order.salt)
@@ -217,7 +220,7 @@ export default {
           raw.makerTokenAmount = new BN(this.order.makerTokenAmount)
           raw.takerTokenAmount = new BN(this.order.takerTokenAmount)
 
-          raw.takerAddress = this.address
+          // raw.taker = this.address
 
           console.log(raw)
           console.log(this.order)
@@ -237,9 +240,7 @@ export default {
     },
     setOrder () {
       if (!this.order) return
-      this.tmpOrder.makerTokenAddress = this.order.makerTokenAddress
-      this.tmpOrder.makerTokenAmount = this.order.makerTokenAmount
-      this.tmpOrder.takerTokenAmount = this.order.takerTokenAmount
+
       this.tmpOrder.exchangeContractAddress = this.$store.state.EXCHANGE_ADDRESS
 
       if (this.newOrder) {
@@ -247,7 +248,7 @@ export default {
         this.tmpOrder.maker = this.address
         this.tmpOrder.taker = this.$store.state.NULL_ADDRESS
         this.tmpOrder.feeRecipient = this.$store.state.NULL_ADDRESS
-
+        this.tmpOrder.makerTokenAddress = this.order.makerTokenAddress
         this.tmpOrder.takerTokenAddress = this.order.takerTokenAddress
         this.tmpOrder.salt = ZeroEx.generatePseudoRandomSalt()
         this.tmpOrder.makerFee = 0
@@ -256,10 +257,13 @@ export default {
         this.tmpOrder.time = moment().add(1, 'hours').format('HH:mz')
         this.tmpOrder.date = moment().add(1, 'days').format('YYYY-MM-DD')
       } else {
+        this.tmpOrder.makerTokenAmount = this.order.makerTokenAmount
+        this.tmpOrder.takerTokenAmount = this.order.takerTokenAmount
         this.tmpOrder.maker = this.order.maker
         this.tmpOrder.taker = this.order.taker
         this.tmpOrder.feeRecipient = this.order.feeRecipient
-        this.tmpOrder.takerTokenAddress = this.address
+        this.tmpOrder.makerTokenAddress = this.order.makerTokenAddress
+        this.tmpOrder.takerTokenAddress = this.order.takerTokenAddress
         this.tmpOrder.salt = this.order.salt
         this.tmpOrder.makerFee = this.order.makerFee
         this.tmpOrder.takerFee = this.order.takerFee
