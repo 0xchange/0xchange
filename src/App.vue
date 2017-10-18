@@ -13,7 +13,7 @@
           v-for="(item, i) in items"
           :key="i"
           :href="item.href"
-          target="_blank"
+          :target="item.target"
         >
           <v-list-tile-action>
             <v-icon light v-html="item.icon"></v-icon>
@@ -60,19 +60,6 @@
     data () {
       return {
         drawer: false,
-        items: [{
-          icon: 'developer_board',
-          title: 'About',
-          href: 'https://devpost.com/software/0xchange-me'
-        }, {
-          icon: 'code',
-          title: 'Github Frontend',
-          href: 'https://github.com/okwme/0xchange'
-        }, {
-          icon: 'code',
-          title: 'Github Backend',
-          href: 'https://github.com/okwme/0xchange'
-        }],
         title: '0xchange.me — A Free and Open 0x Relayer'
       }
     },
@@ -80,7 +67,36 @@
       this.pageServer()
     },
     computed: {
-      ...mapGetters(['loading'])
+      ...mapGetters(['loading']),
+      network () {
+        return window.location.hostname === 'kovan.0xchange.me' ? 'Kovan' : 'Mainnet'
+      },
+      notNetwork () {
+        return this.network === 'Kovan' ? 'Mainnet' : 'Kovan'
+      },
+      items () {
+        return [{
+          icon: 'developer_board',
+          title: 'About',
+          href: 'https://devpost.com/software/0xchange-me',
+          target: '_blank'
+        }, {
+          icon: 'code',
+          title: 'Github Frontend',
+          href: 'https://github.com/okwme/0xchange',
+          target: '_blank'
+        }, {
+          icon: 'code',
+          title: 'Github Backend',
+          href: 'https://github.com/okwme/0xchange',
+          target: '_blank'
+        }, {
+          icon: 'language',
+          title: 'Switch to ' + this.notNetwork + ' Network',
+          href: 'https://' + (this.network === 'Kovan' ? '' : 'kovan.') + '0xchange.me',
+          target: '_self'
+        }]
+      }
     },
     methods: {
       ...mapActions(['pageServer'])
