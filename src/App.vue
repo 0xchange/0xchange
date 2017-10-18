@@ -2,6 +2,7 @@
   <v-app light>
     <v-navigation-drawer
       persistent
+      :clipped="true"
       :disable-route-watcher="true"
       v-model="drawer"
       app
@@ -11,6 +12,8 @@
           value="true"
           v-for="(item, i) in items"
           :key="i"
+          :href="item.href"
+          target="_blank"
         >
           <v-list-tile-action>
             <v-icon light v-html="item.icon"></v-icon>
@@ -22,9 +25,9 @@
       </v-list>
     </v-navigation-drawer>
     <v-toolbar fixed app >
-<!--       <v-toolbar-side-icon @click.stop="drawer = !drawer" light></v-toolbar-side-icon> -->
-      <v-icon large >record_voice_over</v-icon>
-      <v-toolbar-title >0xchange.me</v-toolbar-title>
+      <v-toolbar-side-icon @click.stop="drawer = !drawer" light></v-toolbar-side-icon>
+<!--       <v-icon large >record_voice_over</v-icon> -->
+      <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
     <main>
@@ -58,11 +61,19 @@
       return {
         drawer: false,
         items: [{
-          icon: 'bubble_chart',
-          title: 'Home',
-          href: '/'
+          icon: 'developer_board',
+          title: 'About',
+          href: 'https://devpost.com/software/0xchange-me'
+        }, {
+          icon: 'code',
+          title: 'Github Frontend',
+          href: 'https://github.com/okwme/0xchange'
+        }, {
+          icon: 'code',
+          title: 'Github Backend',
+          href: 'https://github.com/okwme/0xchange'
         }],
-        title: '0xchange'
+        title: '0xchange.me — A Free and Open 0x Relayer'
       }
     },
     mounted () {

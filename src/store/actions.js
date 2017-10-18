@@ -16,6 +16,10 @@ const priceSymbols = ['USD', 'CAD', 'BTC']
 // const abiDecoder = require('abi-decoder')
 // var Web3EthAbi = require('web3-eth-abi')
 
+let hostname = window.location.hostname
+let prefix = hostname === 'kovan.0xchange.me' ? 'kovan.api.' : 'api.'
+axios.defaults.baseURL = '//' + prefix + '0xchange.me'
+
 export default {
   withdraw ({commit, state}, eth) {
     zeroEx.etherToken.withdrawAsync(new BN(1000000000000000000).mul(eth), state.addresses[0]).then((tx) => {
@@ -204,7 +208,7 @@ export default {
         }
         // console.log(signedOrder)
         // commit('ADD_ORDER', signedOrder)
-        return axios.post('//api.0xchange.me/order/new', signedOrder).then((results) => {
+        return axios.post('/order/new', signedOrder).then((results) => {
           // console.log(results)
           dispatch('pageServer')
           dispatch('addNotification', {type: 'success', 'text': 'Order Added'})
@@ -228,7 +232,7 @@ export default {
     }
   },
   submitToken ({commit, dispatch}, token) {
-    axios.post('//api.0xchange.me/token/new', token).then((results) => {
+    axios.post('/token/new', token).then((results) => {
       console.log(results)
       dispatch('addNotification', {type: 'success', 'text': 'Token Submitted!'})
       dispatch('getTokens')
@@ -239,7 +243,7 @@ export default {
   },
   pageServer ({commit, state, dispatch, getters}) {
     console.log('page server')
-    axios.get('//api.0xchange.me/order').then((results) => {
+    axios.get('/order').then((results) => {
       // console.log(results)
       commit('ADD_ORDERS', results.data)
     }).catch((error) => {
@@ -263,7 +267,7 @@ export default {
     dispatch('getTokens')
   },
   getTokens ({commit, getters, dispatch}) {
-    axios.get('//api.0xchange.me/token')
+    axios.get('/token')
     .then((results) => {
       // console.log(results.data)
       // const filteredData = results.data.filter((coin) => {

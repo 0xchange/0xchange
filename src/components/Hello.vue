@@ -182,8 +182,8 @@ export default {
     },
     goodPrice (one, two) {
       return {
-        goodPrice: one > two,
-        badPrice: two > one
+        goodPrice: parseFloat(one) > parseFloat(two),
+        badPrice: parseFloat(two) > parseFloat(one)
       }
     },
     ...mapActions(['connect', 'withdraw', 'deposit', 'pageServer', 'setPagination', 'addTokenAddress']),
