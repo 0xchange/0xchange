@@ -1,6 +1,7 @@
 <template>
   <v-app light>
     <v-navigation-drawer
+      :absolute="true"
       persistent
       :clipped="true"
       :disable-route-watcher="true"
