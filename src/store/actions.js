@@ -17,8 +17,9 @@ const priceSymbols = ['USD', 'CAD', 'BTC']
 // var Web3EthAbi = require('web3-eth-abi')
 
 let hostname = window.location.hostname
-let prefix = hostname === 'kovan.0xchange.me' ? 'kovan.api.' : 'api.'
-axios.defaults.baseURL = '//' + prefix + '0xchange.me'
+let suffix = hostname === 'kovan.0xchange.me' ? '/kovan' : ''
+console.log(suffix)
+axios.defaults.baseURL = '//api.0xchange.me' + suffix
 
 export default {
   withdraw ({commit, state}, eth) {
@@ -105,6 +106,14 @@ export default {
     }
 
     zeroEx = new ZeroEx(providerEngine)
+    zeroEx._web3Wrapper.web3.version.getNetwork((error, response) => {
+      if (error) console.error(error)
+      if (parseInt(response) === 42 && window.location.hostname !== 'kovan.0xchange.me') {
+        window.location.href = 'https://kovan.0xchange.me'
+      } else if (parseInt(response) === 1 && window.location.hostname === 'kovan.0xchange.me') {
+        window.location.href = 'https://0xchange.me'
+      }
+    })
     // commit('SET_ZERO_EX', zeroEx)
     // 3117574 kovan
     // 4145578 mainnet
