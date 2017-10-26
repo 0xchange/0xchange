@@ -47,6 +47,7 @@ export default {
     commit('REMOVE_MSG', id)
   },
   getRates ({commit, dispatch, getters}, symbols) {
+    // console.log('symbolsList: ', symbols)
     const symbolsString = symbols.join()
     const priceSymbolsString = priceSymbols.join()
     const testString = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString
@@ -278,15 +279,6 @@ export default {
   getTokens ({commit, getters, dispatch}) {
     axios.get('/token')
     .then((results) => {
-      // console.log(results.data)
-      // const filteredData = results.data.filter((coin) => {
-      //   const s = coin.symbol
-      //   if (/[^a-zA-Z0-9]/.test(s)) {
-      //     return false
-      //   } else {
-      //     return ((s.toUpperCase() === s) && s.length < 5)
-      //   }
-      // })
       const mappedData = results.data.map((coin) => {
         const newCoin = coin
         newCoin.address = newCoin.address.toLowerCase()
@@ -295,15 +287,18 @@ export default {
       commit('ADD_COINLIST', mappedData)
       // console.log('orders---', getters.orders)
       const symbols = []
+      const addSymbol = (address) => {
+        if (getters.addressList[address]) {
+          let symbol = getters.addressList[address].symbol
+          symbol = (symbol === 'WETH') ? 'ETH' : symbol
+          symbols.push(symbol)
+        }
+      }
       getters.orders.forEach((order) => {
         // console.log('makerAddress', order.makerTokenAddress)
         // console.log('AddressList', getters.addressList)
-        let makerSymbol = getters.addressList[order.makerTokenAddress].symbol
-        let takerSymbol = getters.addressList[order.takerTokenAddress].symbol
-        makerSymbol = (makerSymbol === 'WETH') ? 'ETH' : makerSymbol
-        takerSymbol = (takerSymbol === 'WETH') ? 'ETH' : takerSymbol
-        symbols.push(makerSymbol)
-        symbols.push(takerSymbol)
+        addSymbol(order.makerTokenAddress)
+        addSymbol(order.takerTokenAddress)
       })
       // const symbols = filteredData.map((coin) => { return coin.symbol })
       dispatch('getRates', symbols)
