@@ -28,7 +28,7 @@
     <v-toolbar fixed app >
       <v-toolbar-side-icon @click.stop="drawer = !drawer" light></v-toolbar-side-icon>
 <!--       <v-icon large >record_voice_over</v-icon> -->
-      <v-btn   small color="warning" v-html="network"></v-btn>
+      <v-btn small color="warning" v-html="network"></v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
