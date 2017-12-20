@@ -34,11 +34,14 @@ export default {
   SET_ZERO_EX (state, zeroEx) {
     state.zeroEx = zeroEx
   },
-  UPDATE_RATES (state, rates) {
-    state.rates = rates
-  },
   UPDATE_RATE (state, rate) {
     _.set(state.rates, [rate.from, rate.to], rate.price)
+  },
+  UPDATE_RATES (state, rates) {
+    rates.forEach((rate) => {
+      _.set(state.rates, [rate.from, rate.to], rate.price)
+    })
+    console.log('rates?', state.rates)
   },
   SET_ADDRESSES (state, addresses) {
     state.addresses = addresses

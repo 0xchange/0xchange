@@ -4,14 +4,13 @@ import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
 import axios from 'axios'
 // import jsonpAdapter from 'axios-jsonp'
 import BN from 'bignumber.js'
+import _ from 'lodash'
 import { ZeroEx } from '0x.js'
-import io from 'socket.io-client'
-import CCC from '../socket/ccc.js'
 
 let zeroEx = null
 
 // option for prices
-const priceSymbols = ['USD', 'CAD', 'BTC']
+// const priceSymbols = ['USD', 'CAD', 'BTC']
 // let abi = require('../assets/contracts/Exchange.json')
 // const abiDecoder = require('abi-decoder')
 // var Web3EthAbi = require('web3-eth-abi')
@@ -46,52 +45,23 @@ export default {
   removeNotification ({commit}, id) {
     commit('REMOVE_MSG', id)
   },
-  getRates ({commit, dispatch, getters}, symbols) {
-    // console.log('symbolsList: ', symbols)
-    const symbolsString = symbols.join()
-    const priceSymbolsString = priceSymbols.join()
-    const testString = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + symbolsString + '&tsyms=' + priceSymbolsString
-    // console.log(testString)
-    axios.get(testString).then((results) => {
-      // console.log('THE RATES HAVE BEEN UPDATED', results.data)
-      commit('UPDATE_RATES', results.data)
-      // const socketSymbols = getters.coinList.map((coin) => {
-      //   return coin.symbol
-      // })
-      // dispatch('openRateSocket', socketSymbols)
-    })
-  },
-  openRateSocket ({commit}, symbols) {
-    const subscription = []
-
-    // Format: {SubscriptionId}~{ExchangeName}~{FromSymbol}~{ToSymbol}
-    // Use SubscriptionId 0 for TRADE, 2 for CURRENT and 5 for CURRENTAGG
-    // For aggregate quote updates use CCCAGG as market
-
-    symbols.forEach((symbol) => {
-      priceSymbols.forEach((pSymbol) => {
-        const str = '5~CCCAGG~' + symbol + '~' + pSymbol
-        subscription.push(str)
+  getRates ({commit, dispatch, getters}) {
+    for (let i = 0; i < 500; i += 100) {
+      const query = 'https://api.coinmarketcap.com/v1/ticker/?convert=CAD&start=' + i
+      // console.log(testString)
+      axios.get(query).then((results) => {
+        console.log(results)
+        const mappedResults = _.map(results.data, (result) => {
+          return {
+            from: result.symbol,
+            to: 'USD',
+            price: parseFloat(result.price_usd)
+          }
+        })
+        console.log('THE RATES HAVE BEEN UPDATED', mappedResults)
+        commit('UPDATE_RATES', mappedResults)
       })
-    })
-    // console.log(JSON.stringify(subscription))
-
-    var socket = io.connect('https://streamer.cryptocompare.com/')
-
-    socket.emit('SubAdd', {subs: subscription})
-
-    socket.on('m', function (message) {
-      var messageType = message.substring(0, message.indexOf('~'))
-      var res = {}
-      if (messageType === CCC.STATIC.TYPE.CURRENTAGG) {
-        res = CCC.CURRENT.unpack(message)
-        if (res.PRICE) {
-          // const rate = {to: res.TOSYMBOL, from: res.FROMSYMBOL, price: res.PRICE}
-          // console.log(JSON.stringify(rate))
-          // commit('UPDATE_RATE', rate)
-        }
-      }
-    })
+    }
   },
   connect ({dispatch, commit, getters, state}) {
     let providerEngine = null
@@ -285,26 +255,10 @@ export default {
         return newCoin
       })
       commit('ADD_COINLIST', mappedData)
-      // console.log('orders---', getters.orders)
-      const symbols = []
-      const addSymbol = (address) => {
-        if (getters.addressList[address]) {
-          let symbol = getters.addressList[address].symbol
-          symbol = (symbol === 'WETH') ? 'ETH' : symbol
-          symbols.push(symbol)
-        }
-      }
-      getters.orders.forEach((order) => {
-        // console.log('makerAddress', order.makerTokenAddress)
-        // console.log('AddressList', getters.addressList)
-        addSymbol(order.makerTokenAddress)
-        addSymbol(order.takerTokenAddress)
-      })
-      // const symbols = filteredData.map((coin) => { return coin.symbol })
-      dispatch('getRates', symbols)
+      dispatch('getRates')
       setInterval(() => {
-        dispatch('getRates', symbols)
-      }, 50000)
+        dispatch('getRates')
+      }, 300000)
     })
   }
 }

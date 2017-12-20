@@ -34,11 +34,11 @@
 
 
                 <v-flex xs5>
-                  <v-text-field readonly :label="getTokenSymbol(tmpOrder.makerTokenAddress) + ' Market Price (SAI)'" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
+                  <v-text-field readonly :label="getTokenSymbol(tmpOrder.makerTokenAddress) + ' Market Price ($USD)'" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="convert(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount)"></v-text-field>
                 </v-flex>
 
                 <v-flex xs5 offset-xs1>
-                  <v-text-field readonly :label="getTokenSymbol(tmpOrder.makerTokenAddress) + ' Asking Price (SAI)'" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="orderPrice(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount, tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
+                  <v-text-field readonly :label="getTokenSymbol(tmpOrder.makerTokenAddress) + ' Asking Price ($USD)'" :suffix="getTokenSymbol(tmpOrder.makerTokenAddress)" :value="orderPrice(tmpOrder.makerTokenAddress, tmpOrder.makerTokenAmount, tmpOrder.takerTokenAddress, tmpOrder.takerTokenAmount)"></v-text-field>
                 </v-flex>
 
 
