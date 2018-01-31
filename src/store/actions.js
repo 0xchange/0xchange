@@ -58,7 +58,7 @@ export default {
             price: parseFloat(result.price_usd)
           }
         })
-        console.log('THE RATES HAVE BEEN UPDATED', mappedResults)
+        // console.log('THE RATES HAVE BEEN UPDATED', mappedResults)
         commit('UPDATE_RATES', mappedResults)
       })
     }

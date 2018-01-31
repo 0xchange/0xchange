@@ -207,7 +207,6 @@ export default {
     getMarketRate (address) {
       const symbol = this.getTokenSymbol(address)
       const marketRates = this.rates[symbol]
-      console.log('desired currency', this.desiredCurrency)
       return (marketRates && marketRates[this.desiredCurrency].toFixed(3)) || ''
     },
     close () {

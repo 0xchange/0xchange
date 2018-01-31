@@ -1,4 +1,5 @@
-import _ from 'lodash'
+// import _ from 'lodash'
+import Vue from 'vue'
 
 export default {
   LOADING (state, val) {
@@ -35,11 +36,14 @@ export default {
     state.zeroEx = zeroEx
   },
   UPDATE_RATE (state, rate) {
-    _.set(state.rates, [rate.from, rate.to], rate.price)
+    state.rates[rate.from] = {}
+    Vue.set(state.rates, rate.to, rate.price)
+    console.log('rates?', state.rates)
   },
   UPDATE_RATES (state, rates) {
     rates.forEach((rate) => {
-      _.set(state.rates, [rate.from, rate.to], rate.price)
+      state.rates[rate.from] = {}
+      Vue.set(state.rates[rate.from], rate.to, rate.price)
     })
     console.log('rates?', state.rates)
   },
